@@ -19,6 +19,11 @@ Bridge=bridge0\n"
 	esac
 }
 
+function vm-temp() {
+	echo -e "[Files]
+TemporaryFileSystem=$1\n"
+}
+
 function vm-mount() {
 	local TYPE=Bind
 	if [ "$1" == "ReadOnly" ]; then
@@ -50,6 +55,9 @@ function vm-mount-type() {
 	;;
 	\[share\])
 		echo "/data/AppData/share"
+	;;
+	\[source\])
+		echo "/data/DevelopmentRoot"
 	;;
 	\[volumes\])
 		echo "/data/Volumes"
