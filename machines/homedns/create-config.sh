@@ -11,6 +11,7 @@ fi
 cat named.conf.backup \
  | sed 's/allow-query.*\;/include "\/etc\/named\/overwrite.conf";/g' \
  | sed '/logging {/ { :a;N; /^};/M!ba ; d }' \
+ | sed '/dnssec/d' \
  > named.conf \
  || die "can not parse named.conf"
 echo 'include "/etc/named/zones.conf";' >> named.conf
@@ -22,22 +23,18 @@ echo "
 listen-on port 53 { any; };
 listen-on-v6 port 53 { any; };
 forwarders {
-	74.82.42.42;
-	91.239.100.100;
-	216.146.35.35;
-	8.26.56.26;
-	8.8.4.4;
+	10.0.0.1;
 };
 allow-update { 127.0.0.1; };
 allow-query  { any; };
 masterfile-format text;
-
+dnssec-enable no;
 " > overwrite.conf
 
 echo '
 logging {
   channel bind_log {
-    stderr;
+    file "/var/log/named.log";
     severity info;
     print-category yes;
     print-severity yes;

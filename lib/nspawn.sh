@@ -15,9 +15,11 @@ function prepare-vm() {
 	shift
 	local CALLBACK=$1
 	
-	local DIR="${LIB_MACHINE}/${MACHINE}"
+	local DIR=$(vm-file "${MACHINE}")
 	mkdir -p "${DIR}" || die "Can not create dir $DIR"
-	mdnf "${MACHINE}" install systemd || die "dnf install systemd failed"
+	screen-run mdnf "${MACHINE}" install systemd || die "dnf install systemd failed"
+	
+	unlink "$(vm-file "${MACHINE}" .binddir)"
 	
 	echo "[Exec]
 WorkingDirectory=/root
@@ -35,39 +37,58 @@ $(${CALLBACK})" >"${DIR}.nspawn.tmp" && \
 }
 
 function vm-command-exits() {
-	local NAME=$1
+	local DIR=$(vm-file "${1}")
 	local CMD=$2
-	local DIR="${LIB_MACHINE}/${NAME}"
 	
 	chroot "${DIR}" command -v "${CMD}" &>/dev/null
 }
 
 function vm-mkdir() {
-	local NAME=$1
+	local DIR=$(vm-file "${1}")
 	shift
-	local DIR="${LIB_MACHINE}/${NAME}"
-	chroot "${DIR}" mkdir -p "$@"
+	chroot "${DIR}" mkdir -p "$@" || die "vm mkdir failed: $*"
 }
 
 function vm-systemctl() {
-	local NAME=$1
+	local DIR=$(vm-file "${1}")
 	shift
-	local DIR="${LIB_MACHINE}/${NAME}"
 	
-	chroot "${DIR}" systemctl "$@"
+	chroot "${DIR}" systemctl "$@" || die "vm systemctl failed: $*"
 }
 
 function vm-script() {
-	local NAME=$1
-	local FILE=$2
-	local DIR="${LIB_MACHINE}/${NAME}"
+	local DIR=$(vm-file "${1}")
+	local FILE="$2"
+	shift
+	shift
 	
-	cp "${FILE}" "${DIR}/tmp/${FILE}"
+	cp "$(staff-file "$FILE")" "${DIR}/tmp/$FILE"
 	
-	chroot "${DIR}" bash "/tmp/${FILE}"
+	chroot "${DIR}" bash "/tmp/$FILE" "$@" || die "chrrot script failed: ${DIR}/tmp/$FILE"
 	local RET=$?
 	
-	unlink "${DIR}/tmp/${FILE}"
+	unlink "${DIR}/tmp/$FILE"
 	
 	return ${RET}
+}
+
+function host-script() {
+	local VM_DIR=$(vm-file "${1}")
+	local FILE="$(staff-file "$2")"
+	shift
+	shift
+	
+	pushd "${VM_DIR}" &>/dev/null || die "invalid machine dir: ${VM_DIR}"
+	bash "${FILE}" "$@"
+	local RET=$?
+	popd &>/dev/null
+	
+	return ${RET}
+}
+
+function vm-copy() {
+	local TARGET=$(vm-file "${1}" "${3}")
+	local FILE="$(staff-file "$2")"
+	
+	cp -r "${FILE}" "${TARGET}"
 }

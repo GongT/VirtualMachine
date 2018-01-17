@@ -22,12 +22,7 @@ WantedBy=machines.target
 
 [Service]
 Environment=MACHINE=$MACHINE
-"
-	for i in "${HOST_FOLDERS[@]}" ; do
-		echo "ExecStartPre=-/bin/mkdir -p \"$i\""
-	done
-	
-echo "
+ExecStartPre=/bin/bash -c \"cat '$(vm-file "${MACHINE}" .binddir)' | xargs mkdir -vp\"
 ExecStartPre=-/usr/bin/machinectl terminate \$MACHINE
 ExecStart=/usr/bin/systemd-nspawn --settings=trusted --machine \$MACHINE
 ExecReload=/usr/bin/systemctl --machine \$MACHINE restart dnsmasq
