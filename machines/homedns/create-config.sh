@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-hostnamectl set-hostname DNS
+echo dns > /etc/hostname
 
 cd /etc
 
@@ -20,8 +20,8 @@ echo 'include "/etc/named/logs.conf";' >> named.conf
 cd /etc/named
 
 echo "
-listen-on port 53 { any; };
-listen-on-v6 port 53 { any; };
+listen-on port 5553 { any; };
+listen-on-v6 port 5553 { any; };
 forwarders {
 	10.0.0.1;
 };
@@ -40,12 +40,12 @@ logging {
     print-severity yes;
     print-time yes;
   };
-  category default { bind_log; };
-  category update { bind_log; };
-  category update-security { bind_log; };
-  category security { bind_log; };
-  category queries { bind_log; };
-  category lame-servers { bind_log; };
+  category default { default_syslog; };
+  category update { default_syslog; };
+  category update-security { default_syslog; };
+  category security { default_syslog; };
+  category queries { default_syslog; };
+  category lame-servers { default_syslog; };
 };
 ' > logs.conf
 
@@ -67,7 +67,8 @@ zone "service.gongt.me" {
 };
 ' > services.conf
 
-echo "\$TTL 1D
+if [ ! -e "db.service.gongt.me" ]; then
+	echo "\$TTL 1D
 service.gongt.me.	IN SOA	@	gongt.me. (
 		1		; serial
 		1D		; refresh
@@ -77,3 +78,4 @@ service.gongt.me.	IN SOA	@	gongt.me. (
 )
 		IN NS		ns1.he.net.
 " > db.service.gongt.me
+fi

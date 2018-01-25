@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-hostnamectl set-hostname webserver
+echo webserver > /etc/hostname
 
 cd /opt/config
 

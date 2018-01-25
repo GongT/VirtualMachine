@@ -16,20 +16,22 @@ function prepare-vm() {
 	local CALLBACK=$1
 	
 	local DIR=$(vm-file "${MACHINE}")
+	local NS_FILE="${DIR%/}"
+	
 	mkdir -p "${DIR}" || die "Can not create dir $DIR"
 	screen-run mdnf "${MACHINE}" install systemd || die "dnf install systemd failed"
 	
-	unlink "$(vm-file "${MACHINE}" .binddir)"
+	unlink "$(vm-file "${MACHINE}" .binddir)" &>/dev/null || true
 	
 	echo "[Exec]
 WorkingDirectory=/root
 Boot=yes
 Environment=
 
-$(${CALLBACK})" >"${DIR}.nspawn.tmp" && \
-		cat "${DIR}.nspawn.tmp" >"${DIR}.nspawn" && \
-		rm -f "${DIR}.nspawn.tmp" || die "can not create .nspawn file"
-	
+$(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
+		cat "${NS_FILE}.nspawn.tmp" >"${NS_FILE}.nspawn" && \
+		rm -f "${NS_FILE}.nspawn.tmp" || die "can not create .nspawn file"
+		
 	if [ "${NETWORK_SUBSYS}" == "yes" ]; then
 		vm-systemctl "${MACHINE}" enable systemd-networkd systemd-resolved || die "can not chroot run systemctl"
 	fi

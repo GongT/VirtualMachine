@@ -1,0 +1,10 @@
+[Exec]
+WorkingDirectory=/root
+Boot=yes
+Environment=
+
+[Network]
+Bridge=bridge0
+
+[Files]
+Bind=/data/Volumes/:/drives

@@ -11,10 +11,11 @@ function prepare() {
 
 prepare-vm homedns prepare
 if ! vm-command-exits homedns /usr/sbin/named \
-|| ! vm-command-exits homedns /usr/bin/nslookup ; then
-	mdnf homedns install bind bind-utils
+|| ! vm-command-exits homedns /usr/bin/nslookup \
+|| ! vm-command-exits homedns /usr/sbin/dnsmasq ; then
+	mdnf homedns install bind bind-utils dnsmasq
 fi
-vm-systemctl homedns enable named
+vm-systemctl homedns enable named dnsmasq
 
 create-machine-service homedns > "$(system-service-file homedns)"
 vm-script homedns create-config.sh
