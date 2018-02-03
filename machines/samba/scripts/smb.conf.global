@@ -8,7 +8,7 @@
 	map hidden = no
 	map read only = no
 	map system = no
-	vfs objects = acl_xattr
+	vfs objects = acl_xattr recycle
 	map acl inherit = yes
 	store dos attributes = yes
 	passdb backend = tdbsam
@@ -23,3 +23,7 @@
 	username map = /opt/username.map
 	acl allow execute always = yes
 	ntlm auth = yes
+	recycle:touch = Yes
+	recycle:keeptree = Yes
+	recycle:versions = No
+	recycle:excludedir = .recycle

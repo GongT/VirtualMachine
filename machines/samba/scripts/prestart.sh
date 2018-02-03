@@ -38,17 +38,23 @@ for I in */ ; do
 	fi
 
 	echo "
-
 [${I%/}]
 	comment = ${DISKLABEL}
 	path = /drives/${I}
 	writable = yes
 	read only = no
+	vfs objects = acl_xattr recycle
+	nt acl support = yes
 	public = yes
-	inherit acls = no
+	inherit acls = yes
 	browseable = yes
 	create mask = 0644
 	directory mask = 0755
+	recycle:repository = /drives/${I}.recycle/%U
+	recycle:touch = no
+	recycle:keeptree = yes
+	recycle:versions = no
+	recycle:excludedir = .recycle
 
 " >> /etc/samba/smb.conf
 done
