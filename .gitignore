@@ -1,1 +1,3 @@
 .idea/
+lib/remote-key.rsa
+lib/remote-key.rsa.pub

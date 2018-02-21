@@ -32,14 +32,13 @@ function vm-mount() {
 
 	local ROOT="$(vm-mount-type "$1")"
 	local MAP="$2"
-	local RO=$3
 	
 	local LOCAL="${MAP%%:*}"
 	local REMOTE="${MAP##*:}"
 	
 	if [ "${LOCAL}" == "." ] || [ "${LOCAL}" == "${REMOTE}" ]; then
 		LOCAL=
-		MAP=":${MAP}"
+		MAP=":${REMOTE}"
 	fi
 	
 	echo "${ROOT}/${LOCAL}" >> "$(vm-file "${MACHINE}" .binddir)"

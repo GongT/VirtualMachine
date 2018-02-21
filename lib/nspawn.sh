@@ -19,9 +19,12 @@ function prepare-vm() {
 	local NS_FILE="${DIR%/}"
 	
 	mkdir -p "${DIR}" || die "Can not create dir $DIR"
-	screen-run mdnf "${MACHINE}" install systemd || die "dnf install systemd failed"
+	screen-run mdnf "${MACHINE}" install systemd bash openssh || die "dnf install systemd bash failed"
 	
+	cat "$(vm-file "${MACHINE}" .binddir)" | xargs --no-run-if-empty mkdir -vp
 	unlink "$(vm-file "${MACHINE}" .binddir)" &>/dev/null || true
+	
+	add-mdnf
 	
 	echo "[Exec]
 WorkingDirectory=/root
@@ -35,7 +38,6 @@ $(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
 	if [ "${NETWORK_SUBSYS}" == "yes" ]; then
 		vm-systemctl "${MACHINE}" enable systemd-networkd systemd-resolved || die "can not chroot run systemctl"
 	fi
-	unset MACHINE
 }
 
 function vm-command-exits() {
@@ -43,6 +45,11 @@ function vm-command-exits() {
 	local CMD=$2
 	
 	chroot "${DIR}" command -v "${CMD}" &>/dev/null
+}
+
+function vm-file-exits() {
+	local P=$(vm-file "${1}")
+	[ -e "$P" ]
 }
 
 function vm-mkdir() {
@@ -59,17 +66,23 @@ function vm-systemctl() {
 }
 
 function vm-script() {
+	local VM="$1"
 	local DIR=$(vm-file "${1}")
 	local FILE="$2"
 	shift
 	shift
 	
-	cp "$(staff-file "$FILE")" "${DIR}/tmp/$FILE"
+	mkdir -p "${DIR}/mnt/install"
+	cp "$(staff-file "$FILE")" "${DIR}/mnt/install/$FILE"
 	
-	chroot "${DIR}" bash "/tmp/$FILE" "$@" || die "chrrot script failed: ${DIR}/tmp/$FILE"
+	if machinectl status -q "$VM" &>/dev/null ; then
+		machinectl shell "$VM" /bin/bash "/mnt/install/$FILE" "$@"
+	else
+		systemd-nspawn --settings=trusted -M "$VM" /bin/bash "/mnt/install/$FILE" "$@"
+	fi
 	local RET=$?
 	
-	unlink "${DIR}/tmp/$FILE"
+	unlink "${DIR}/mnt/install/$FILE"
 	
 	return ${RET}
 }

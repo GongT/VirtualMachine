@@ -1,0 +1,12 @@
+[Unit]
+Description=qBittorrent NOX
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/QB/bin/qbittorrent-nox --webui-port=18080 --profile=/opt
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
