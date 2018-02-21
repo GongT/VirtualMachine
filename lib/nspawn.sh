@@ -19,7 +19,7 @@ function prepare-vm() {
 	local NS_FILE="${DIR%/}"
 	
 	mkdir -p "${DIR}" || die "Can not create dir $DIR"
-	screen-run mdnf "${MACHINE}" install systemd bash openssh || die "dnf install systemd bash failed"
+	screen-run mdnf "${MACHINE}" install systemd bash openssh-clients || die "dnf install systemd bash failed"
 	
 	cat "$(vm-file "${MACHINE}" .binddir)" | xargs --no-run-if-empty mkdir -vp
 	unlink "$(vm-file "${MACHINE}" .binddir)" &>/dev/null || true
@@ -37,6 +37,10 @@ $(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
 		
 	if [ "${NETWORK_SUBSYS}" == "yes" ]; then
 		vm-systemctl "${MACHINE}" enable systemd-networkd systemd-resolved || die "can not chroot run systemctl"
+		local RESOLV_FILE="${DIR}/etc/resolv.conf"
+		if [ ! -h "${RESOLV_FILE}" ] && [ ! -e "${RESOLV_FILE}" ]; then
+			ln -s ../var/run/systemd/resolve/resolv.conf "${RESOLV_FILE}"
+		fi
 	fi
 }
 
