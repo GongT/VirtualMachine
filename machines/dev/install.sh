@@ -14,8 +14,8 @@ if ! vm-command-exits DevelopmentEnvironment /usr/sbin/sshd ; then
 fi
 vm-systemctl DevelopmentEnvironment enable sshd
 
-# vm-copy qbittorrent qbittorrent.service /etc/systemd/system/
-# vm-systemctl qbittorrent enable qbittorrent.service
+vm-copy DevelopmentEnvironment config/sshd_config /etc/ssh/
+cp ~/.ssh/authorized_keys $(vm-file DevelopmentEnvironment /root/.ssh/)
 
 create-machine-service DevelopmentEnvironment > "$(system-service-file DevelopmentEnvironment)"
 systemctl enable DevelopmentEnvironment.machine

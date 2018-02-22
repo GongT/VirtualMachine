@@ -106,7 +106,7 @@ function host-script() {
 }
 
 function vm-copy() {
-	local TARGET=$(vm-file "${1}" "${3}")
+	local TARGET="$(vm-file "${1}" "${3}")"
 	local FILE="$(staff-file "$2")"
 	
 	cp -r "${FILE}" "${TARGET}"
