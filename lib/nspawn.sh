@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
 
 pushd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")" &>/dev/null
+LIBRARY_PATH="$(pwd)"
 source "../CONFIG"
+source "../PASSWORDS"
 source "mdnf.sh"
 source "vm-config.sh"
 popd &>/dev/null
 
 if [ -z "${LIB_MACHINE}" ] || [ ! -e "${LIB_MACHINE}" ]; then
-	die "machine root not exists."
+	die "machine root '${LIB_MACHINE}' not exists."
 fi
+
+export MACHINE="......" # just invalid thing
+
+function add-systemd-journal-clean() {
+	local TARGET="$(vm-file "${MACHINE}" /usr/lib/systemd/system)"
+	cp -r "${LIBRARY_PATH}/service/." "${TARGET}"
+	# echo cp -r "${LIBRARY_PATH}/service/." "${TARGET}"
+}
 
 function prepare-vm() {
 	export MACHINE=$1
@@ -19,6 +29,7 @@ function prepare-vm() {
 	local NS_FILE="${DIR%/}"
 	
 	mkdir -p "${DIR}" || die "Can not create dir $DIR"
+	
 	screen-run mdnf "${MACHINE}" install systemd bash openssh-clients || die "dnf install systemd bash failed"
 	
 	cat "$(vm-file "${MACHINE}" .binddir)" | xargs --no-run-if-empty mkdir -vp
@@ -42,6 +53,9 @@ $(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
 			ln -s ../var/run/systemd/resolve/resolv.conf "${RESOLV_FILE}"
 		fi
 	fi
+	
+	add-systemd-journal-clean
+	vm-systemctl "${MACHINE}" enable journal-clean.timer
 }
 
 function vm-command-exits() {
@@ -69,6 +83,18 @@ function vm-systemctl() {
 	chroot "${DIR}" systemctl "$@" || die "vm systemctl failed: $*"
 }
 
+function vm-run() {
+	local CMD=$1
+	shift
+	echo "VM-RUN: $CMD" >&2
+	CMD="echo \"arguments: \$@\"; set -x; $CMD"
+	if machinectl status -q "$MACHINE" &>/dev/null ; then
+		machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
+	else
+		systemd-nspawn --settings=trusted -M "$MACHINE" /bin/bash -c "$CMD" -- "$@"
+	fi
+}
+
 function vm-script() {
 	local VM="$1"
 	local DIR=$(vm-file "${1}")
@@ -77,16 +103,16 @@ function vm-script() {
 	shift
 	
 	mkdir -p "${DIR}/mnt/install"
-	cp "$(staff-file "$FILE")" "${DIR}/mnt/install/$FILE"
+	cp "$(staff-file "$FILE")" "${DIR}/mnt/install/running.sh"
+	cp "${LIBRARY_PATH}/_lib.sh" "${DIR}/mnt/install/_lib.sh"
 	
-	if machinectl status -q "$VM" &>/dev/null ; then
-		machinectl shell "$VM" /bin/bash "/mnt/install/$FILE" "$@"
-	else
-		systemd-nspawn --settings=trusted -M "$VM" /bin/bash "/mnt/install/$FILE" "$@"
-	fi
+	local CMD="source /mnt/install/_lib.sh ; source /mnt/install/running.sh \"\$@\""
+	
+	vm-run "$CMD" "$@" || die "vm run script failed"
+	
 	local RET=$?
 	
-	unlink "${DIR}/mnt/install/$FILE"
+	unlink "${DIR}/mnt/install/running.sh"
 	
 	return ${RET}
 }
@@ -97,8 +123,10 @@ function host-script() {
 	shift
 	shift
 	
+	# echo "host-script: $FILE $*"
+	
 	pushd "${VM_DIR}" &>/dev/null || die "invalid machine dir: ${VM_DIR}"
-	bash "${FILE}" "$@"
+	bash -c "echo \"arguments: \$*\"; set -x; source '${LIBRARY_PATH}/_lib.sh'; source ${FILE} \"\$@\"" -- "$@"
 	local RET=$?
 	popd &>/dev/null
 	

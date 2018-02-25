@@ -1,0 +1,11 @@
+[Unit]
+Description=KCP tunnel client
+PartOf=network.target
+Before=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/data/kcptun/client_linux_amd64 -c /data/config/kcptun.json
+
+[Install]
+WantedBy=network-online.target

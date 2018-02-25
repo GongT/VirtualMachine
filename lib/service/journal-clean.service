@@ -1,0 +1,10 @@
+[Unit]
+Description=clean journal
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/usr/bin/journalctl --vacuum-time 1d
+
+[Install]
+WantedBy=timers.target

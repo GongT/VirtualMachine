@@ -29,6 +29,8 @@ echo "[global]" > /etc/samba/smb.conf
 # echo "	log file = ${PROC}/fd/1" >> /etc/samba/smb.conf
 cat /opt/smb.conf.global >> /etc/samba/smb.conf
 
+cat /opt/development-root.conf >> /etc/samba/smb.conf
+
 cd /drives
 for I in */ ; do
 	if [ -e "${I}.disklabel" ]; then

@@ -1,0 +1,11 @@
+[Unit]
+Description=Shadowsocks proxy client
+PartOf=network.target
+Before=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/data/shadowsocks/bin/ss-local -v -c /data/config/shadowsocks.json
+
+[Install]
+WantedBy=network-online.target

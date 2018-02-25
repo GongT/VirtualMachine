@@ -33,3 +33,22 @@ function screen-run() {
 	
 	return ${RET}
 }
+
+function download-file() {
+	local URL="$1"
+	local BASE="$(basename "${URL}")"
+	local TARGET=$(vm-file "${MACHINE}" "/mnt/install/${BASE}")
+	if [ -e "${TARGET}" ]; then
+		return
+	fi
+	
+	mkdir -p "$(dirname "${TARGET}")"
+	wget "${URL}" -c -O "${TARGET}.downloading"
+	RET=$?
+	
+	if [ ${RET} -ne 0 ]; then
+		return ${RET}
+	fi
+	
+	mv "${TARGET}.downloading" "${TARGET}"
+}

@@ -6,6 +6,7 @@ source ../../lib/systemd.sh
 function prepare() {
 	vm-use-network bridge
 	vm-mount [volumes] /drives
+	vm-mount [root] data/DevelopmentRoot:/data/DevelopmentRoot
 }
 
 prepare-vm samba prepare || die "can not prepare vm"
