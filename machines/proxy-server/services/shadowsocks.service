@@ -6,6 +6,7 @@ Before=network-online.target
 [Service]
 Type=simple
 ExecStart=/data/shadowsocks/bin/ss-local -v -c /data/config/shadowsocks.json
+Restart=always
 
 [Install]
 WantedBy=network-online.target

@@ -1,5 +1,5 @@
 {
-	"crypt": "none",
+	"crypt": "xor",
 	"conn": 10,
 	"localaddr": "0.0.0.0:6060",
 	"remoteaddr": "$SS_SERVER:$KCP_PORT",

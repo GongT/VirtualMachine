@@ -6,6 +6,7 @@ Before=network-online.target
 [Service]
 Type=simple
 ExecStart=/data/kcptun/client_linux_amd64 -c /data/config/kcptun.json
+Restart=always
 
 [Install]
 WantedBy=network-online.target

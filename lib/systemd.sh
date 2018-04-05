@@ -22,7 +22,7 @@ WantedBy=machines.target
 
 [Service]
 Environment=MACHINE=$MACHINE
-ExecStartPre=/bin/bash -c \"cat '$(vm-file "${MACHINE}" .binddir)' | xargs mkdir -vp\"
+ExecStartPre=/bin/bash -c \"cat '$(vm-file "${MACHINE}" .binddir)' | xargs mkdir -vp || true\"
 ExecStartPre=-/usr/bin/machinectl terminate \$MACHINE
 ExecStart=/usr/bin/systemd-nspawn --settings=trusted --machine \$MACHINE
 ExecReload=/usr/bin/systemctl --machine \$MACHINE restart dnsmasq
