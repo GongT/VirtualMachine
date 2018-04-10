@@ -20,7 +20,10 @@ cat config/kcptun.json | \
 	sed "s/\$SS_SERVER/$SS_SERVER/g"|  \
 	sed "s/\$KCP_PORT/$KCP_PORT/g" \
 	> "$(vm-file proxy-server /data/config/kcptun.json)"
-cat config/shadowsocks.json | sed "s/\$SS_PASSWORD/$SS_PASSWORD/g" > "$(vm-file proxy-server /data/config/shadowsocks.json)"
+cat config/shadowsocks.json | \
+	sed "s/\$SS_PASSWORD/$SS_PASSWORD/g" | \
+	sed "s/\$SS_METHOD/${SS_METHOD-"rc4-md5"}/g" \
+	> "$(vm-file proxy-server /data/config/shadowsocks.json)"
 
 vm-copy proxy-server config/vnstat.conf /etc
 

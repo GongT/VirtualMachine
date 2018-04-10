@@ -34,6 +34,10 @@ Slice=machine.slice
 Delegate=yes
 Restart=on-failure
 
+LimitNOFILE=infinity
+LimitMEMLOCK=infinity
+OOMScoreAdjust=-1000
+
 TimeoutStopSec=60s
 RestartSec=10s
 "

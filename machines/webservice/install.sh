@@ -25,22 +25,24 @@ function do-install-server() {
 		echo "run"
 		echo "exit"
 	} | mdnf webservice shell
-	
-	vm-systemctl webservice enable php-fpm nginx memcached
 }
 screen-run do-install-server
+
+vm-systemctl webservice enable php-fpm nginx memcached
 
 create-machine-service webservice > "$(system-service-file webservice)"
 
 vm-script webservice create-config.sh
 
 screen-run mdnf build-env install -y $(<"$(staff-file dependencies.lst)")
-host-script build-env download-source.sh
-vm-script build-env build-nginx.sh "$(vm-script webservice nginx-compile-args.sh)"
+screen-run host-script build-env download-source.sh
+screen-run vm-script build-env build-nginx.sh "$(vm-script webservice nginx-compile-args.sh)"
 
-mkdir -p "$(vm-file webservice "/opt/modules/")"
+vm-mkdir webservice "/opt/modules/"
 cp -r "$(vm-file build-env "/opt/nginx/dist/.")" "$(vm-file webservice "/opt/modules")"
 screen-run vm-script webservice cleanup.sh
 
 systemctl enable webservice.machine
 systemctl daemon-reload
+
+echo "Success..."

@@ -87,7 +87,7 @@ function vm-run() {
 	local CMD=$1
 	shift
 	echo "VM-RUN: $CMD" >&2
-	CMD="echo \"arguments: \$@\"; set -x; $CMD"
+	# CMD="echo \"arguments: \$@\" >&2; $CMD"
 	if machinectl status -q "$MACHINE" &>/dev/null ; then
 		machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
 	else
@@ -108,6 +108,7 @@ function vm-script() {
 	
 	local CMD="source /mnt/install/_lib.sh ; source /mnt/install/running.sh \"\$@\""
 	
+	echo "run in vm: $(staff-file "$FILE")" >&2
 	vm-run "$CMD" "$@" || die "vm run script failed"
 	
 	local RET=$?
@@ -126,7 +127,7 @@ function host-script() {
 	# echo "host-script: $FILE $*"
 	
 	pushd "${VM_DIR}" &>/dev/null || die "invalid machine dir: ${VM_DIR}"
-	bash -c "echo \"arguments: \$*\"; set -x; source '${LIBRARY_PATH}/_lib.sh'; source ${FILE} \"\$@\"" -- "$@"
+	bash -c "echo \"arguments: \$*\" >&2; source '${LIBRARY_PATH}/_lib.sh'; source ${FILE} \"\$@\"" -- "$@"
 	local RET=$?
 	popd &>/dev/null
 	

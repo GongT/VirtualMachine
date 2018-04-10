@@ -4,7 +4,7 @@
 	"local_address": "0.0.0.0",
 	"local_port": 7070,
 	"password": "$SS_PASSWORD",
-	"method": "rc4-md5",
+	"method": "$SS_METHOD",
 	"timeout": 60,
 	"fast_open": true,
 	"mode": "tcp_and_udp"
