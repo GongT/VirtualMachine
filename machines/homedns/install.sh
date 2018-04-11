@@ -5,7 +5,8 @@ source ../../lib/systemd.sh
 
 function prepare() {
 	vm-use-network bridge
-	vm-mount ReadOnly [root] etc:/host/etc
+	# vm-mount ReadOnly [root] etc:/host/etc
+	vm-mount [config] dnsmasq:/etc/dnsmasq.d
 	vm-mount ReadOnly [share] letsencrypt:/etc/letsencrypt
 }
 

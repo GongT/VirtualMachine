@@ -7,11 +7,22 @@ cd /etc
 if [ ! -e named.conf.backup ]; then
 	mv named.conf named.conf.backup
 fi
+if [ ! -e dnsmasq.conf.backup ]; then
+	mv dnsmasq.conf dnsmasq.conf.backup
+fi
+
+cat dnsmasq.conf.backup \
+ | sed '/conf-dir/d' \
+ > dnsmasq.conf \
+ || die "can not parse dnsmasq.conf"
+echo '' >> dnsmasq.conf
+echo 'conf-dir=/etc/dnsmasq.d/,*.conf' >> dnsmasq.conf
 
 cat named.conf.backup \
  | sed 's/allow-query.*\;/include "\/etc\/named\/overwrite.conf";/g' \
  | sed '/logging {/ { :a;N; /^};/M!ba ; d }' \
  | sed '/dnssec/d' \
+ | sed '/listen-on/d' \
  > named.conf \
  || die "can not parse named.conf"
 echo 'include "/etc/named/zones.conf";' >> named.conf

@@ -1,4 +1,7 @@
 nextcloud-nginx
+tar
+unzip
+wget
 nginx
 pcre
 pcre-cpp
@@ -11,9 +14,9 @@ php-aws-sdk
 php-bcmath
 php-channel-dropbox-php
 php-cli
-php-common
 php-dropbox-php-Dropbox
 php-fpm
+php-devel
 php-gd
 php-gmp
 php-google-apiclient1

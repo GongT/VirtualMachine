@@ -45,6 +45,8 @@ Environment=
 $(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
 		cat "${NS_FILE}.nspawn.tmp" >"${NS_FILE}.nspawn" && \
 		rm -f "${NS_FILE}.nspawn.tmp" || die "can not create .nspawn file"
+	
+	chmod a-x "${NS_FILE}.nspawn"
 		
 	if [ "${NETWORK_SUBSYS}" == "yes" ]; then
 		vm-systemctl "${MACHINE}" enable systemd-networkd systemd-resolved || die "can not chroot run systemctl"
@@ -86,7 +88,7 @@ function vm-systemctl() {
 function vm-run() {
 	local CMD=$1
 	shift
-	echo "VM-RUN: $CMD" >&2
+	echo VM-RUN: $CMD >&2
 	# CMD="echo \"arguments: \$@\" >&2; $CMD"
 	if machinectl status -q "$MACHINE" &>/dev/null ; then
 		machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
@@ -97,23 +99,35 @@ function vm-run() {
 
 function vm-script() {
 	local VM="$1"
-	local DIR=$(vm-file "${1}")
+	local DIR=$(vm-file "$VM" "/mnt/install")
 	local FILE="$2"
 	shift
 	shift
 	
-	mkdir -p "${DIR}/mnt/install"
-	cp "$(staff-file "$FILE")" "${DIR}/mnt/install/running.sh"
-	cp "${LIBRARY_PATH}/_lib.sh" "${DIR}/mnt/install/_lib.sh"
+	RUN_BASE=$(basename "$FILE")
 	
-	local CMD="source /mnt/install/_lib.sh ; source /mnt/install/running.sh \"\$@\""
+	mkdir -p "${DIR}"
+	cat "$(staff-file "$FILE")" > "${DIR}/${RUN_BASE}" || die "no file: $(staff-file "$FILE")"
+	cat "${LIBRARY_PATH}/_lib.sh" > "${DIR}/_lib.sh"
+	
+	local CMD="if [ -e '/mnt/install/${RUN_BASE}' ]; then
+	source /mnt/install/_lib.sh
+	source '/mnt/install/${RUN_BASE}' \"\$@\"
+else
+	echo 'no such file: /mnt/install/${RUN_BASE} in VM{${VM}}
+ from: $(staff-file "$FILE")
+ to:   ${DIR}/${RUN_BASE}' >&2
+	ls -lh --color /mnt/install
+	exit 1
+fi
+"
 	
 	echo "run in vm: $(staff-file "$FILE")" >&2
-	vm-run "$CMD" "$@" || die "vm run script failed"
+	MACHINE="$VM" vm-run "$CMD" "$@" || die "vm run script failed"
 	
 	local RET=$?
 	
-	unlink "${DIR}/mnt/install/running.sh"
+	unlink "${DIR}/${RUN_BASE}"
 	
 	return ${RET}
 }
