@@ -30,7 +30,7 @@ vm-copy proxy-server config/vnstat.conf /etc
 vm-copy proxy-server services/. /usr/lib/systemd/system
 vm-systemctl proxy-server enable kcptun.service shadowsocks.service
 
-if ! vm-command-exits proxy-server /usr/bin/wget ; then
+if ! vm-command-exits proxy-server /usr/bin/gcc ; then
 	screen-run mdnf proxy-server install sed wget make tar file gcc-c++ \
 		pcre-devel mbedtls-devel libsodium-devel c-ares-devel libev-devel
 fi
