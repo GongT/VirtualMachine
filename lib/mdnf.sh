@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+if [ -z "${LIB_MACHINE}" ]; then
+	export LIB_MACHINE=/var/lib/machines
+fi
+
 function mdnf() {
 	local MACHINE="${LIB_MACHINE}/$1"
 	if [ ! -d "$MACHINE" ]; then
-			echo "No such machine: $1" >&2
+			echo "No such machine: $MACHINE" >&2
 			exit 1
 	fi
 	shift

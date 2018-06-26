@@ -90,11 +90,13 @@ function vm-run() {
 	shift
 	echo VM-RUN: $CMD >&2
 	# CMD="echo \"arguments: \$@\" >&2; $CMD"
-	if machinectl status -q "$MACHINE" &>/dev/null ; then
-		machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
-	else
-		systemd-nspawn --settings=trusted -M "$MACHINE" /bin/bash -c "$CMD" -- "$@"
+	if ! machinectl status -q "$MACHINE" &>/dev/null ; then
+		echo "creating container: $MACHINE..." >&2
+		systemd-run --unit="${MACHINE}.machine" --service-type=simple systemd-nspawn --boot --settings=trusted -M "$MACHINE"
+		sleep 2
 	fi
+	echo "attaching to container: $MACHINE..." >&2
+	machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
 }
 
 function vm-script() {
@@ -110,9 +112,20 @@ function vm-script() {
 	cat "$(staff-file "$FILE")" > "${DIR}/${RUN_BASE}" || die "no file: $(staff-file "$FILE")"
 	cat "${LIBRARY_PATH}/_lib.sh" > "${DIR}/_lib.sh"
 	
-	local CMD="if [ -e '/mnt/install/${RUN_BASE}' ]; then
+	local I=0
+	local i=""
+	
+	for i in "$@"; do
+		echo -n "$i" | sed -e "s/\r//" > "${DIR}/ARG${I}.sh"
+		ARGLIST+="\"\$(</mnt/install/ARG${I}.sh)\" "
+		I=$((I + 1))
+	done
+	
+	echo "#!/bin/bash
+
+if [ -e '/mnt/install/${RUN_BASE}' ]; then
 	source /mnt/install/_lib.sh
-	source '/mnt/install/${RUN_BASE}' \"\$@\"
+	source '/mnt/install/${RUN_BASE}' ${ARGLIST}
 else
 	echo 'no such file: /mnt/install/${RUN_BASE} in VM{${VM}}
  from: $(staff-file "$FILE")
@@ -120,14 +133,16 @@ else
 	ls -lh --color /mnt/install
 	exit 1
 fi
-"
+" > "${DIR}/_entry.sh"
+	chmod a+x "${DIR}/_entry.sh"
 	
 	echo "run in vm: $(staff-file "$FILE")" >&2
-	MACHINE="$VM" vm-run "$CMD" "$@" || die "vm run script failed"
+	echo "run in vm: ${DIR}/${RUN_BASE}" >&2
+	MACHINE="$VM" vm-run "/mnt/install/_entry.sh" "$@" || die "vm run script failed"
 	
 	local RET=$?
 	
-	unlink "${DIR}/${RUN_BASE}"
+	# unlink "${DIR}/${RUN_BASE}"
 	
 	return ${RET}
 }
