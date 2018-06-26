@@ -31,7 +31,7 @@ vm-copy proxy-server services/. /usr/lib/systemd/system
 vm-systemctl proxy-server enable kcptun.service shadowsocks.service
 
 if ! vm-command-exits proxy-server /usr/bin/gcc ; then
-	screen-run mdnf proxy-server install sed wget make tar file gcc-c++ \
+	screen-run mdnf proxy-server install samba sed wget make tar file gcc-c++ \
 		pcre-devel mbedtls-devel libsodium-devel c-ares-devel libev-devel
 fi
 
@@ -40,7 +40,7 @@ if ! vm-command-exits proxy-server /usr/bin/privoxy ; then
 	screen-run mdnf proxy-server install privoxy
 fi
 screen-run vm-script proxy-server prepare-config.sh
-vm-systemctl proxy-server enable privoxy.service
+vm-systemctl proxy-server enable privoxy.service nmb.service
 HOST_FILE_CONFIG="$(vm-mount-type "[config]")/user.action"
 if [ ! -e "${HOST_FILE_CONFIG}" ]; then
 	echo '{+forward-override{forward-socks5 127.0.0.1:7070 .} }' > "${HOST_FILE_CONFIG}"

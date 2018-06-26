@@ -17,3 +17,15 @@ done
 mkdir -p /var/log/nginx
 mkdir -p /var/log/php-fpm
 
+mkdir -p /usr/lib/systemd/system/nginx.service.d/
+echo '[Service]
+Restart=always
+RestartSec=5
+ExecStart=
+ExecStart=/usr/sbin/nginx
+
+[Unit]
+StartLimitInterval=11
+StartLimitBurst=2
+
+' > /usr/lib/systemd/system/nginx.service.d/overwrite.conf

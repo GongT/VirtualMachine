@@ -91,11 +91,11 @@ function vm-run() {
 	echo VM-RUN: $CMD >&2
 	# CMD="echo \"arguments: \$@\" >&2; $CMD"
 	if ! machinectl status -q "$MACHINE" &>/dev/null ; then
-		echo 'creating container...' >&2
-		systemd-run --service-type=simple systemd-nspawn --settings=trusted -M "$MACHINE"
+		echo "creating container: $MACHINE..." >&2
+		systemd-run --unit="${MACHINE}.machine" --service-type=simple systemd-nspawn --boot --settings=trusted -M "$MACHINE"
 		sleep 2
 	fi
-	echo 'attaching to container...' >&2
+	echo "attaching to container: $MACHINE..." >&2
 	machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
 }
 
@@ -116,7 +116,7 @@ function vm-script() {
 	local i=""
 	
 	for i in "$@"; do
-		echo "$i" > "${DIR}/ARG${I}.sh"
+		echo -n "$i" | sed -e "s/\r//" > "${DIR}/ARG${I}.sh"
 		ARGLIST+="\"\$(</mnt/install/ARG${I}.sh)\" "
 		I=$((I + 1))
 	done
@@ -142,7 +142,7 @@ fi
 	
 	local RET=$?
 	
-	unlink "${DIR}/${RUN_BASE}"
+	# unlink "${DIR}/${RUN_BASE}"
 	
 	return ${RET}
 }

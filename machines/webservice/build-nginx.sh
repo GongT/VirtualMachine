@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -e
+set -o pipefail
+
 cd /opt/nginx
 
 echo "
@@ -15,7 +18,8 @@ done
 
 echo -e "\t'--add-dynamic-module=../special-modules/njs/nginx' \\
 \t'--modules-path=/opt/modules' \\
-\t'--conf-path=/opt/config/nginx/nginx.conf' \\" >> compile.sh
+\t'--conf-path=/opt/config/nginx/nginx.conf' \\
+\t'--with-debug' \\" >> compile.sh
 
 function extract() {
 	for i ; do
@@ -27,6 +31,7 @@ export -f extract
 
 bash -c "extract $*" | \
   sed 's#/var/lib/nginx/tmp#/tmp#g' | \
+  grep -v -- '--with-debug' | \
   grep -v -- '--conf-path' | \
   grep -v -- '--modules-path' | \
   grep -v -- '--add-dynamic-module' | \
@@ -36,20 +41,9 @@ bash -c "extract $*" | \
 
 echo "
 
-make -j $(nproc)
+make BUILDTYPE=Debug -j $(nproc)
 
 " >> compile.sh
-
-trap "
-RET=\$?
-tput rmcup
-if [ -e error.log ]; then
-	cat error.log
-	unlink error.log
-fi
-exit \$RET
-" EXIT
-tput smcup
 
 function run-build() {
 	bash compile.sh </dev/null
@@ -62,5 +56,4 @@ function run-build() {
 	cd ./dist
 	ls *.so | xargs -I FFF echo 'load_module "/opt/modules/FFF";' > load-all.conf
 }
-run-build 2>&1 | tee error.log
-unlink error.log
+run-build 2>&1 | tee compile.log
