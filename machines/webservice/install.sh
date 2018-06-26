@@ -12,6 +12,7 @@ function prepare() {
 	vm-mount ReadOnly [share] letsencrypt:/etc/letsencrypt
 	vm-mount ReadOnly [install] config:/opt/config
 	vm-mount [log] /var/log
+	vm-mount [volumes] /drives
 	vm-use-socket
 }
 
@@ -32,7 +33,7 @@ function do-install-server() {
 
 set -e
 
-vm-systemctl webservice enable php-fpm nginx memcached
+vm-systemctl webservice enable php-fpm nginx memcached redis crond
 
 create-machine-service webservice > "$(system-service-file webservice)"
 

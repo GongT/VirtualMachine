@@ -21,17 +21,9 @@ After=syslog.target
 
 [Install]
 WantedBy=multi-user.target
-Alias=mysql.service
-Alias=mysqld.service
-
 
 [Service]
-
-##############################################################################
-## Core requirements
-##
-
-Type=notify
+Type=simple
 
 # Setting this to true can break replication and the Type=notify settings
 # See also bind-address mysqld option.
@@ -61,8 +53,6 @@ ProtectHome=true
 # Execute pre and post scripts as root, otherwise it does it as User=
 PermissionsStartOnly=true
 
-
-
 # Perform automatic wsrep recovery. When server is started without wsrep,
 # galera_recovery simply returns an empty string. In any case, however,
 # the script is not expected to return with a non-zero status.
@@ -73,16 +63,14 @@ ExecStartPre=/bin/sh -c "[ ! -e /usr/local/mysql/bin/galera_recovery ] && VAR= |
  VAR=`/usr/local/mysql/bin/galera_recovery`; [ $? -eq 0 ] \
  && systemctl set-environment _WSREP_START_POSITION=$VAR || exit 1"
 
-# Needed to create system tables etc.
-# ExecStartPre=/usr/local/mysql/scripts/mysql_install_db -u mysql
-
 # Start main service
 # MYSQLD_OPTS here is for users to set in /etc/systemd/system/mariadb.service.d/MY_SPECIAL.conf
 # Use the [Service] section and Environment="MYSQLD_OPTS=...".
 # This isn't a replacement for my.cnf.
 # _WSREP_NEW_CLUSTER is for the exclusive use of the script galera_new_cluster
-ExecStart=/usr/local/mysql/bin/mysqld $MYSQLD_OPTS $_WSREP_NEW_CLUSTER $_WSREP_START_POSITION
-
+PIDFile=/var/run/mysqld/mysqld.pid
+ExecStart=/usr/local/mysql/bin/mysqld --pid-file=/var/run/mysqld/mysqld.pid $MYSQLD_OPTS $_WSREP_NEW_CLUSTER $_WSREP_START_POSITION
+ExecStop=/usr/local/mysql/bin/mysqladmin shutdown -h 127.0.0.1 -pEzreal_LOL
 
 # Unset _WSREP_START_POSITION environment variable.
 ExecStartPost=/bin/sh -c "systemctl unset-environment _WSREP_START_POSITION"
@@ -142,9 +130,8 @@ LimitNOFILE=16364
 # (in LD_LIBRARY_PATH) and library name (in LD_PRELOAD).
 # Environment="LD_LIBRARY_PATH=/path1 /path2" "LD_PRELOAD=
 
-# Flush caches. previously [mysqld_safe] flush-caches=1
-# ExecStartPre=sync
-# ExecStartPre=sysctl -q -w vm.drop_caches=3
+# ---
+ExecStartPre=/bin/sh /opt/prestart.sh
 
 # numa-interleave=1 equalivant
 # Change ExecStart=numactl --interleave=all /usr/local/mysql/bin/mysqld......

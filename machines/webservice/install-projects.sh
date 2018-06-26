@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 
+
+# phpMyAdmin
 PMA_URL="https://files.phpmyadmin.net/phpMyAdmin/4.8.0/phpMyAdmin-4.8.0-all-languages.zip"
 PMA_NAME="$(basename -s .zip "$PMA_URL")"
 
 cd opt
+# !!!!!!!
+
 download-file "phpmyadmin.zip" "${PMA_URL}" || die "can not download mariadb"
 if [ ! -e "phpMyAdmin/${PMA_NAME}" ]; then
 	mv phpMyAdmin/ phpMyAdmin.bak/
@@ -18,4 +22,14 @@ if [ ! -e "phpMyAdmin/${PMA_NAME}" ]; then
 fi
 mkdir -p phpMyAdmin/config
 chmod 0777 phpMyAdmin/config
+
+
+# NextCloud
+NEXTCLOUD_RELEASE=https://download.nextcloud.com/server/releases/nextcloud-13.0.2.tar.bz2
+
+download-file "nextcloud.tar.bz2" "${NEXTCLOUD_RELEASE}" || die "can not download nextcloud"
+tar xf nextcloud.tar.bz2
+chown root:root nextcloud -R
+
+
 

@@ -105,3 +105,5 @@ GeoIP-GeoLite-data
 GeoIP-GeoLite-data-extra
 gperftools
 perl-devel
+cronie
+redis

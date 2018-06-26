@@ -3,7 +3,7 @@
 source ../../lib/nspawn.sh
 source ../../lib/systemd.sh
 
-MARIADB_RELEASE="https://downloads.mariadb.org/f/mariadb-10.2.14/bintar-linux-glibc_214-x86_64/mariadb-10.2.14-linux-glibc_214-x86_64.tar.gz"
+MARIADB_RELEASE="https://downloads.mariadb.org/f/mariadb-10.2.15/bintar-linux-glibc_214-x86_64/mariadb-10.2.15-linux-glibc_214-x86_64.tar.gz"
 
 function prepare() {
 	vm-use-network bridge
@@ -12,20 +12,22 @@ function prepare() {
 	vm-use-socket
 }
 
-prepare-vm mysqld prepare
+prepare-vm mariadb prepare
+mkdir -p "$(vm-mount-type [app])"
 
-cp "$(staff-file my.cnf)" "$(vm-file mysqld etc/my.cnf)"
-cp "$(staff-file mariadb.service)" "$(vm-file mysqld /usr/lib/systemd/system/mariadb.service)"
+cp "$(staff-file my.cnf)" "$(vm-file mariadb etc/my.cnf)"
+cp "$(staff-file mariadb.service)" "$(vm-file mariadb /usr/lib/systemd/system/mariadb.service)"
+cp "$(staff-file prestart.sh)" "$(vm-file mariadb /opt/prestart.sh)"
 
-screen-run mdnf mysqld install -y libaio numactl-libs libstdc++
+screen-run mdnf mariadb install -y libaio numactl-libs libstdc++
 
-host-script mysqld install-mariadb.sh "${MARIADB_RELEASE}"
-vm-script mysqld prepare.sh
-vm-systemctl mysqld enable mariadb.service
+host-script mariadb install-mariadb.sh "${MARIADB_RELEASE}"
+vm-script mariadb prepare.sh
+vm-systemctl mariadb enable mariadb.service
 
-create-machine-service mysqld > "$(system-service-file mysqld)"
+create-machine-service mariadb > "$(system-service-file mariadb)"
 
-systemctl enable mysqld.machine
+systemctl enable mariadb.machine
 systemctl daemon-reload
 
 echo "Success..."

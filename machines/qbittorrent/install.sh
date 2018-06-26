@@ -3,8 +3,8 @@
 source ../../lib/nspawn.sh
 source ../../lib/systemd.sh
 
-QB_RELEASE=https://github.com/qbittorrent/qBittorrent/archive/release-4.0.4.tar.gz
-LIBT_RELEASE=https://github.com/arvidn/libtorrent/archive/libtorrent-1_1_6.tar.gz
+QB_RELEASE=https://github.com/qbittorrent/qBittorrent/archive/release-4.1.1.tar.gz
+LIBT_RELEASE=https://github.com/arvidn/libtorrent/archive/libtorrent-1_1_7.tar.gz
 
 function prepare() {
 	vm-use-network bridge
