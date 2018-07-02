@@ -89,14 +89,30 @@ function vm-run() {
 	local CMD=$1
 	shift
 	echo VM-RUN: $CMD >&2
+	
 	# CMD="echo \"arguments: \$@\" >&2; $CMD"
 	if ! machinectl status -q "$MACHINE" &>/dev/null ; then
 		echo "creating container: $MACHINE..." >&2
-		systemd-run --unit="${MACHINE}.machine" --service-type=simple systemd-nspawn --boot --settings=trusted -M "$MACHINE"
+		_stop-temp-machine
+		systemd-run --unit="$(_temp-machine)" --service-type=simple systemd-nspawn --boot --settings=trusted -M "$MACHINE"
 		sleep 2
 	fi
 	echo "attaching to container: $MACHINE..." >&2
 	machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
+	
+	_stop-temp-machine
+}
+
+function _stop-temp-machine() {
+	local TMP_MACHINE="$(_temp-machine)"
+	if service --status-all | grep -Fq "${TMP_MACHINE}" ; then
+		systemctl stop "${TMP_MACHINE}" || true
+		systemctl reset-failed "${TMP_MACHINE}" || true
+	fi
+}
+
+function _temp-machine() {
+	echo "${MACHINE}.install-machine"
 }
 
 function vm-script() {

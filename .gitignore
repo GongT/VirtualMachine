@@ -1,4 +1,5 @@
 .idea/
+!.idea/VirtualMachine.iml
 lib/remote-key.rsa
 lib/remote-key.rsa.pub
 

@@ -17,7 +17,7 @@ mkdir -p "$(vm-mount-type [app])"
 
 cp "$(staff-file my.cnf)" "$(vm-file mariadb etc/my.cnf)"
 cp "$(staff-file mariadb.service)" "$(vm-file mariadb /usr/lib/systemd/system/mariadb.service)"
-cp "$(staff-file prestart.sh)" "$(vm-file mariadb /opt/prestart.sh)"
+cp "$(staff-file prestart.sh)" "$(staff-file poststart.sh)" "$(vm-file mariadb /opt/prestart.sh)"
 
 screen-run mdnf mariadb install -y libaio numactl-libs libstdc++
 

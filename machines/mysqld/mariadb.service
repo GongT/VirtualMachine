@@ -132,6 +132,7 @@ LimitNOFILE=16364
 
 # ---
 ExecStartPre=/bin/sh /opt/prestart.sh
+ExecStartPost=-/bin/sh /opt/poststart.sh
 
 # numa-interleave=1 equalivant
 # Change ExecStart=numactl --interleave=all /usr/local/mysql/bin/mysqld......

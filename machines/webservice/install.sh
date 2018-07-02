@@ -10,13 +10,15 @@ function prepare() {
 	vm-mount [app] /data
 	vm-mount [source] /data/DevelopmentRoot
 	vm-mount ReadOnly [share] letsencrypt:/etc/letsencrypt
-	vm-mount ReadOnly [install] config:/opt/config
+	vm-mount ReadOnly [config] /opt/config
 	vm-mount [log] /var/log
 	vm-mount [volumes] /drives
 	vm-use-socket
 }
 
 prepare-vm webservice prepare
+
+cp -r "$(vm-mount-type [install])/config/." "$(vm-mount-type [config])"
 
 vm-script webservice pre-install.sh
 
