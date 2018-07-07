@@ -39,7 +39,7 @@ tar -xf "${QB_TAR_FILE}" --strip-components=1 -C ./source
 
 pushd source &>/dev/null
 
-./configure --prefix=/opt/QB --config-cache --enable-systemd --disable-gui CPPFLAGS=-I/usr/include/qt5
+./configure --prefix=/opt/QB --config-cache --enable-systemd CPPFLAGS=-I/usr/include/qt5
 make -j${NP}
 make install
 

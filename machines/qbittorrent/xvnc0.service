@@ -1,0 +1,12 @@
+[Unit]
+Description=XVNC Daemon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/Xvnc :0 -verbose 2 -listen tcp -geometry 1600x1024 -ac -SecurityTypes=None
+User=nobody
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

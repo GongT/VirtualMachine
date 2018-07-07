@@ -48,3 +48,24 @@ ssh server /usr/local/bin/mdnf \"${MACHINE}\" \"\$@\"
 		chmod 0600 "${RSA_FILE}"
 	fi
 }
+
+function add-sshd() {
+	local CFG_FILE="$(vm-file "${MACHINE}" /etc/ssh/sshd_config)"
+	if [ ! -e "${CFG_FILE}" ]; then
+		mkdir -p "$(dirname "${CFG_FILE}")"
+		cat "${LIB_DIR}/config/sshd_config" > "${CFG_FILE}"
+		chmod 0600 "${CFG_FILE}"
+	fi
+	local PUB_KEY=$(cat "${LIB_DIR}/remote-key.rsa.pub" | awk '{print $1" "$2}')
+	
+	local AUTH_FILE="$(vm-file "${MACHINE}" /root/.ssh/authorized_keys)"
+	if [ ! -e "${AUTH_FILE}" ]; then
+		mkdir -p "$(dirname "${AUTH_FILE}")"
+		cat "${LIB_DIR}/remote-key.rsa.pub" | awk '{print $1" "$2}' > "${AUTH_FILE}"
+		chmod 0600 "${AUTH_FILE}"
+	fi
+	if ! vm-command-exits "${MACHINE}" /usr/sbin/sshd ; then
+		mdnf "${MACHINE}" install openssh-server
+	fi
+	vm-systemctl "${MACHINE}" enable sshd
+}

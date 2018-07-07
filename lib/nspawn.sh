@@ -41,6 +41,8 @@ function prepare-vm() {
 WorkingDirectory=/root
 Boot=yes
 Environment=
+Environment=LANG=en_US.UTF-8
+Environment=DISPLAY=:0
 
 $(${CALLBACK})" >"${NS_FILE}.nspawn.tmp" && \
 		cat "${NS_FILE}.nspawn.tmp" >"${NS_FILE}.nspawn" && \

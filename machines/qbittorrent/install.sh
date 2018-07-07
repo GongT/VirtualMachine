@@ -14,16 +14,21 @@ function prepare() {
 }
 
 prepare-vm qbittorrent prepare
-if ! vm-command-exits qbittorrent /usr/bin/libtool ; then
-	mdnf qbittorrent install \
-		make gcc-c++ pkgconf-pkg-config autoconf automake libtool \
-		tar openssh openssh-server \
-		qt-devel boost-devel openssl-devel qt5-qtbase-devel qt5-linguist
-fi
+mdnf qbittorrent install \
+	make gcc-c++ pkgconf-pkg-config autoconf automake libtool \
+	tar openssh openssh-server tigervnc-server i3 \
+	qt-devel boost-devel openssl-devel qt5-qtbase-devel qt5-linguist qt5-qtsvg-devel
 
+## enable ssh
+add-sshd
+
+## services
 vm-copy qbittorrent qbittorrent.service /etc/systemd/system/
-vm-systemctl qbittorrent enable qbittorrent.service
+vm-copy qbittorrent xvnc0.service /etc/systemd/system/
+vm-copy qbittorrent i3.service /etc/systemd/system/
+vm-systemctl qbittorrent enable qbittorrent i3 xvnc0
 
+## compile
 QB_TARGET=$(vm-file qbittorrent /opt/qbittorrent.tar.gz)
 if [ ! -e "${QB_TARGET}" ] ; then
 	wget -c "${QB_RELEASE}" -O "${QB_TARGET}.downloading"
@@ -34,8 +39,9 @@ if [ ! -e "${LIBT_TARGET}" ] ; then
 	wget -c "${LIBT_RELEASE}" -O "${LIBT_TARGET}.downloading"
 	mv "${LIBT_TARGET}.downloading" "${LIBT_TARGET}"
 fi
-screen-run vm-script qbittorrent compile.sh "$(basename "${QB_TARGET}")" "$(basename "${LIBT_TARGET}")"
+#screen-run vm-script qbittorrent compile.sh "$(basename "${QB_TARGET}")" "$(basename "${LIBT_TARGET}")"
 
+## default config
 CONFIG_PATH="$(vm-mount-type [config])/qBittorrent/qBittorrent.conf"
 if [ ! -e "${CONFIG_PATH}" ]; then
 	mkdir -p "$(dirname "${CONFIG_PATH}")"
@@ -44,6 +50,7 @@ WebUI\Enabled=true
 " > ${CONFIG_PATH}
 fi
 
+## finish
 create-machine-service qbittorrent > "$(system-service-file qbittorrent)"
 systemctl enable qbittorrent.machine
 systemctl daemon-reload

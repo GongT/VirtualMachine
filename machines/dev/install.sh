@@ -9,13 +9,8 @@ function prepare() {
 }
 
 prepare-vm DevelopmentEnvironment prepare
-if ! vm-command-exits DevelopmentEnvironment /usr/sbin/sshd ; then
-	mdnf DevelopmentEnvironment install openssh-server
-fi
-vm-systemctl DevelopmentEnvironment enable sshd
 
-vm-copy DevelopmentEnvironment config/sshd_config /etc/ssh/
-cp ~/.ssh/authorized_keys $(vm-file DevelopmentEnvironment /root/.ssh/)
+add-sshd
 
 create-machine-service DevelopmentEnvironment > "$(system-service-file DevelopmentEnvironment)"
 systemctl enable DevelopmentEnvironment.machine
