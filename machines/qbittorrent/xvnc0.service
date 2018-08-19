@@ -1,11 +1,14 @@
 [Unit]
 Description=XVNC Daemon
+After=network-online.target
+Requires=network-online.target
 
 [Service]
 Type=simple
 ExecStart=/usr/bin/Xvnc :0 -verbose 2 -listen tcp -geometry 1600x1024 -ac -SecurityTypes=None
 User=nobody
 Restart=always
+ExecStartPost=/usr/bin/sleep 5
 
 [Install]
 WantedBy=multi-user.target

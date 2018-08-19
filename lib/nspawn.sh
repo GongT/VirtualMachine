@@ -35,6 +35,8 @@ function prepare-vm() {
 	cat "$(vm-file "${MACHINE}" .binddir)" | xargs --no-run-if-empty mkdir -vp
 	unlink "$(vm-file "${MACHINE}" .binddir)" &>/dev/null || true
 	
+	echo 'LANG="en_US.UTF-8"' > "$(vm-file "${MACHINE}" etc/locale.conf)"
+	
 	add-mdnf
 	
 	echo "[Exec]

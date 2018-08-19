@@ -6,6 +6,8 @@ source ../../lib/systemd.sh
 function prepare() {
 	vm-use-network bridge
 	vm-mount [root] data:/data
+	vm-mount [root] dev/shm:/dev/shm
+	vm-mount [root] dev/dri:/dev/dri
 }
 
 prepare-vm DevelopmentEnvironment prepare

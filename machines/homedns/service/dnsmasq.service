@@ -1,0 +1,11 @@
+[Unit]
+Description=DNS caching server.
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/dnsmasq -k --conf-file=/opt/config/dnsmasq/dnsmasq.cache.conf --cache-size=30000
+SyslogIdentifier=dns-out
+
+[Install]
+WantedBy=multi-user.target
