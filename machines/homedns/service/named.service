@@ -10,12 +10,12 @@ After=network.target
 Type=forking
 PIDFile=/run/named/named.pid
 Environment=KRB5_KTNAME=/opt/config/named/krb5.keytab
-ExecStartPre=/usr/bin/chown -R root:root /run/named /var/named
+ExecStartPre=/usr/bin/chown -R named:named /run/named /var/named
 ExecStartPre=/usr/sbin/named-checkconf -z /opt/config/named/named.conf
-ExecStart=/usr/sbin/named -c '/opt/config/named/named.conf' $OPTIONS
+ExecStart=/usr/sbin/named -c '/opt/config/named/named.conf' -u named
 ExecReload=/usr/sbin/rndc -c '/opt/config/rndc.conf' reload
-ExecStop=/usr/sbin/rndc -c '/opt/config/rndc.conf' reload
-PrivateTmp=true
+ExecStop=/usr/sbin/rndc -c '/opt/config/rndc.conf' stop
+PrivateTmp=false
 
 [Install]
 WantedBy=multi-user.target
