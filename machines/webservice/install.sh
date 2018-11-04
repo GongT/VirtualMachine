@@ -13,6 +13,7 @@ function prepare() {
 	vm-mount ReadOnly [config] /opt/config
 	vm-mount [log] /var/log
 	vm-mount [volumes] /drives
+	vm-mount [slowCache] /data/slowCache
 	vm-use-socket
 }
 
@@ -50,6 +51,7 @@ cp -r "$(vm-file build-env "/opt/nginx/dist/.")" "$(vm-file webservice "/opt/mod
 screen-run vm-script webservice cleanup.sh
 
 host-script webservice install-projects.sh
+vm-script webservice chown.sh
 
 systemctl enable webservice.machine
 systemctl daemon-reload

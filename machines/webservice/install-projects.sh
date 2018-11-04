@@ -25,11 +25,10 @@ chmod 0777 phpMyAdmin/config
 
 
 # NextCloud
-NEXTCLOUD_RELEASE=https://download.nextcloud.com/server/releases/nextcloud-13.0.2.tar.bz2
+NEXTCLOUD_RELEASE=https://download.nextcloud.com/server/releases/latest.tar.bz2
 
 download-file "nextcloud.tar.bz2" "${NEXTCLOUD_RELEASE}" || die "can not download nextcloud"
 tar xf nextcloud.tar.bz2
-chown root:root nextcloud -R
 
 
 

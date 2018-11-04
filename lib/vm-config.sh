@@ -81,6 +81,9 @@ function vm-mount-type() {
 	\[root\])
 		echo "/"
 	;;
+	\[slowCache\])
+		echo "/data/SlowCache/${MACHINE}"
+	;;
 	*)
 		die "unknown mount type: $1"
 	esac
