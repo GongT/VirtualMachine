@@ -8,21 +8,24 @@ function prepare() {
 	# vm-mount ReadOnly [root] etc:/host/etc
 	vm-mount [config] /opt/config
 	vm-mount ReadOnly [share] letsencrypt:/etc/letsencrypt
+	vm-use-socket
 }
 
 prepare-vm homedns prepare
-if ! vm-command-exits homedns /usr/sbin/named \
+if ! vm-command-exits homedns /usr/sbin/pdns_server \
 || ! vm-command-exits homedns /usr/bin/nslookup \
 || ! vm-command-exits homedns /usr/sbin/dnsmasq ; then
-	screen-run mdnf homedns install bind bind-utils dnsmasq
+	screen-run mdnf homedns install bind-utils dnsmasq \
+				pdns pdns-tools pdns-backend-mysql
 fi
 
 create-machine-service homedns > "$(system-service-file homedns)"
 
-cp -v $(staff-file "service/*.service") "$(vm-file "${MACHINE}" etc/systemd/system)"
-cp -rv "$(staff-file "config/.")" "$(vm-mount-type [config])"
+cp -rv "$(staff-file "etc/.")" "$(vm-mount-type [config])"
 
-vm-systemctl homedns reenable named dnsmasq
+vm-script homedns create-etc-links.sh
+
+vm-systemctl homedns reenable dnsmasq pdns
 
 systemctl enable homedns.machine
 systemctl daemon-reload

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-KCPTUN_RELEASE=https://github.com/xtaci/kcptun/releases/download/v20171201/kcptun-linux-amd64-20171201.tar.gz
-SHADOWSOCKS_RELEASE=https://github.com/shadowsocks/shadowsocks-libev/releases/download/v3.1.3/shadowsocks-libev-3.1.3.tar.gz
+KCPTUN_RELEASE=https://github.com/xtaci/kcptun/releases/download/v20181002/kcptun-linux-amd64-20181002.tar.gz
+SHADOWSOCKS_RELEASE=https://github.com/shadowsocks/shadowsocks-libev/releases/download/v3.2.0/shadowsocks-libev-3.2.0.tar.gz
 
 source ../../lib/nspawn.sh
 source ../../lib/systemd.sh
@@ -9,6 +9,8 @@ source ../../lib/systemd.sh
 function prepare() {
 	vm-use-network bridge
 	vm-mount [config] /config
+	vm-mount [app] /opt/data
+	vm-use-socket
 }
 
 prepare-vm proxy-server prepare
@@ -30,10 +32,17 @@ vm-copy proxy-server config/vnstat.conf /etc
 vm-copy proxy-server services/. /usr/lib/systemd/system
 vm-systemctl proxy-server enable kcptun.service shadowsocks.service
 
+
 if ! vm-command-exits proxy-server /usr/bin/gcc ; then
 	screen-run mdnf proxy-server install samba sed wget make tar file gcc-c++ \
-		pcre-devel mbedtls-devel libsodium-devel c-ares-devel libev-devel
-fi
+		pcre-devel mbedtls-devel libsodium-devel c-ares-devel libev-devel \
+		
+fitor
+
+### tor
+vm-copy proxy-server config/torrc /etc/tor/torrc
+mkdir -p "$(vm-mount-type "[config]")/torrc.d"
+vm-systemctl proxy-server enable tor
 
 ### privoxy
 if ! vm-command-exits proxy-server /usr/bin/privoxy ; then
