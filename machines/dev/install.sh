@@ -12,6 +12,9 @@ function prepare() {
 
 prepare-vm DevelopmentEnvironment prepare
 
+mdnf DevelopmentEnvironment install git vim nmap-ncat tar xz gzip git hostname libXext findutils libXrender libXtst freetype 'wqy-*' rsync procps-ng
+# TODO: mdnf link to dnf, copy .ssh from host
+
 add-sshd
 
 create-machine-service DevelopmentEnvironment > "$(system-service-file DevelopmentEnvironment)"

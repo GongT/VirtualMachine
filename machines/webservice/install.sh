@@ -19,7 +19,7 @@ function prepare() {
 
 prepare-vm webservice prepare
 
-cp -r "$(vm-mount-type [install])/config/." "$(vm-mount-type [config])"
+cp -vr "$(vm-mount-type [install])/config/." "$(vm-mount-type [config])"
 
 vm-script webservice pre-install.sh
 
@@ -27,32 +27,37 @@ function do-install-server() {
 	{
 		echo "update"
 		cat "$(staff-file packages.lst)" | sed '#^$#d' | sed 's#^#install #'
-		echo "reinstall nginx"
 		echo "run"
 		echo "exit"
 	} | mdnf webservice shell
 }
 screen-run do-install-server
 
+screen-run mdnf build-env install -y $(<"$(staff-file dependencies.lst)")
+
+# dnf config-manager --add-repo https://openresty.org/package/fedora/openresty.repo
+
 set -e
 
-vm-systemctl webservice enable php-fpm nginx memcached redis crond
-
-create-machine-service webservice > "$(system-service-file webservice)"
-
+vm-copy webservice memcached@.service /etc/systemd/system/
 vm-script webservice create-config.sh
 
-screen-run mdnf build-env install -y $(<"$(staff-file dependencies.lst)")
-screen-run host-script build-env download-source.sh
-screen-run vm-script build-env build-nginx.sh "$(vm-script webservice nginx-compile-args.sh)"
+screen-run vm-script build-env build-php.sh
+cp -r "$(vm-file build-env "/opt/php/modules/.")" "$(vm-file webservice "/usr/lib64/php/modules")"
+cp -r "$(vm-file build-env "/opt/php/config/.")" "$(vm-mount-type [config])/php.d"
 
-vm-mkdir webservice "/opt/modules/"
-cp -r "$(vm-file build-env "/opt/nginx/dist/.")" "$(vm-file webservice "/opt/modules")"
-screen-run vm-script webservice cleanup.sh
+screen-run host-script build-env download-source.sh
+screen-run vm-script build-env build-nginx.sh
+
+cp -r "$(vm-file build-env "/opt/nginx/nginx")" "$(vm-file webservice "/usr/sbin/nginx")"
+cp -r "$(vm-file build-env "/opt/nginx/nginx.service")" "$(vm-file webservice "/usr/lib/systemd/system/nginx.service")"
 
 host-script webservice install-projects.sh
 vm-script webservice chown.sh
 
+vm-systemctl webservice enable php-fpm nginx memcached@11211 memcached@11212 redis crond
+
+create-machine-service webservice > "$(system-service-file webservice)"
 systemctl enable webservice.machine
 systemctl daemon-reload
 

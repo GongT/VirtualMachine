@@ -20,7 +20,9 @@ function vm-file() {
 }
 
 function screen-run() {
+	echo -e "SCREEN_RUN: $*"
 	tput smcup
+	echo -e "\ec"
 	"$@" 2>&1 | tee .run.error.log
 	RET=${PIPESTATUS[0]}
 	tput rmcup

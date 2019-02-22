@@ -29,3 +29,6 @@ StartLimitInterval=11
 StartLimitBurst=2
 
 ' > /usr/lib/systemd/system/nginx.service.d/overwrite.conf
+
+memcached@.service
+

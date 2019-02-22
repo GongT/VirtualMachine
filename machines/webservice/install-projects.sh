@@ -2,7 +2,7 @@
 
 
 # phpMyAdmin
-PMA_URL="https://files.phpmyadmin.net/phpMyAdmin/4.8.0/phpMyAdmin-4.8.0-all-languages.zip"
+PMA_URL="https://files.phpmyadmin.net/phpMyAdmin/4.8.4/phpMyAdmin-4.8.4-all-languages.zip"
 PMA_NAME="$(basename -s .zip "$PMA_URL")"
 
 cd opt
@@ -29,6 +29,3 @@ NEXTCLOUD_RELEASE=https://download.nextcloud.com/server/releases/latest.tar.bz2
 
 download-file "nextcloud.tar.bz2" "${NEXTCLOUD_RELEASE}" || die "can not download nextcloud"
 tar xf nextcloud.tar.bz2
-
-
-

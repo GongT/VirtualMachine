@@ -13,9 +13,9 @@ prepare-vm home-assistant prepare
 create-machine-service home-assistant > "$(system-service-file home-assistant)"
 
 cp -r "$(vm-mount-type [install])/hass/." "$(vm-mount-type [config])"
-mkdir "$(vm-mount-type [config])/deps"
+mkdir -p "$(vm-mount-type [config])/deps"
 
-mdnf home-assistant install python3 python3-devel redhat-rpm-config gcc mosquitto wget tar
+mdnf home-assistant install python3 python3-devel redhat-rpm-config gcc mosquitto wget tar yarn npm
 
 if [ ! -e "$(vm-file home-assistant opt/home-assistant/.git)" ]; then
 	git clone https://github.com/home-assistant/home-assistant.git "$(vm-file home-assistant opt/home-assistant)"

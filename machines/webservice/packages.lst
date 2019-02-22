@@ -1,8 +1,8 @@
-nextcloud-nginx
 tar
 unzip
 wget
-nginx
+php-smbclient
+php-devel
 pcre
 pcre-cpp
 pcre-devel
@@ -16,7 +16,6 @@ php-channel-dropbox-php
 php-cli
 php-dropbox-php-Dropbox
 php-fpm
-php-devel
 php-gd
 php-gmp
 php-google-apiclient1
@@ -107,3 +106,6 @@ gperftools
 perl-devel
 cronie
 redis
+luajit
+openresty
+openresty-opm

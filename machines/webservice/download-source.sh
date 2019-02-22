@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-cd opt
-mkdir -p nginx/modules
-mkdir -p nginx/special-modules
-cd nginx
+pushd opt &>/dev/null
+mkdir -p nginx-source/modules
+mkdir -p nginx-source/special-modules
+pushd nginx-source &>/dev/null
 
-download-source nginx http://hg.nginx.org/nginx/archive/tip.tar.gz
+download-github nginx nginx/nginx
 
-download-source special-modules/njs http://hg.nginx.org/njs/archive/tip.tar.gz
+download-master special-modules/njs nginx/njs
 
-clone modules/nginx-rtmp-module https://github.com/arut/nginx-rtmp-module.git
+download-master modules/nginx-rtmp-module arut/nginx-rtmp-module
 
-pushd modules/nginx-rtmp-module
+pushd modules/nginx-rtmp-module &>/dev/null
 echo '
 diff -Nur a/ngx_rtmp_eval.c b/ngx_rtmp_eval.c
 --- a/ngx_rtmp_eval.c	2018-06-02 19:23:28.993466673 +0200
@@ -25,17 +25,26 @@ diff -Nur a/ngx_rtmp_eval.c b/ngx_rtmp_eval.c
              case ESCAPE:
                  ngx_rtmp_eval_append(&b, &c, 1, log);
 ' | patch -b ngx_rtmp_eval.c
-popd
+popd &>/dev/null
 
-clone modules/memc-nginx-module https://github.com/openresty/memc-nginx-module.git
-clone modules/ngx_cache_purge https://github.com/FRiCKLE/ngx_cache_purge.git
-clone modules/nginx-http-slice https://github.com/alibaba/nginx-http-slice.git
+download-master modules/memc-nginx-module openresty/memc-nginx-module
+download-master modules/ngx_cache_purge FRiCKLE/ngx_cache_purge
 
 export BUILD_TYPE=Release
 download-source modules/incubator-pagespeed-ngx https://github.com/apache/incubator-pagespeed-ngx/archive/latest-stable.tar.gz
-modules/incubator-pagespeed-ngx
 BIT_SIZE_NAME=x64 eval "SOURCE=\"$(<modules/incubator-pagespeed-ngx/PSOL_BINARY_URL)\" "
 download-source modules/incubator-pagespeed-ngx/psol "${SOURCE}"
 
-clone modules/echo-nginx-module https://github.com/openresty/echo-nginx-module.git
-clone modules/headers-more-nginx-module https://github.com/openresty/headers-more-nginx-module.git
+download-master modules/echo-nginx-module openresty/echo-nginx-module
+download-master modules/headers-more-nginx-module openresty/headers-more-nginx-module
+
+download-master modules/lua-nginx-module openresty/lua-nginx-module
+download-master modules/stream-lua-nginx-module openresty/stream-lua-nginx-module
+download-master modules/ngx_devel_kit simplresty/ngx_devel_kit
+
+popd &>/dev/null
+
+mkdir -p php-source/modules
+pushd php-source &>/dev/null
+
+download-master modules/php-systemd systemd/php-systemd

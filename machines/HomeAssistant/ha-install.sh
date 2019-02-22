@@ -2,25 +2,14 @@
 
 set -e
 
-export HTTP_PROXY="http://proxy-server:8080"
-export HTTPS_PROXY="${HTTP_PROXY}"
+if [ -z "$HTTPS_PROXY" ]; then
+	echo "proxy required"
+	exit 1
+fi
 
 cd /opt/home-assistant-frontend
 
-echo "installing nvm..."
-wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-
-export NVM_DIR="$HOME/.nvm"
-function load_nvm() {
-	[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh" || echo "nvm load failed"
-}
-load_nvm
-echo "installing nodejs..."
-nvm install
-echo "activating nodejs..."
-nvm use
 echo "installing node_modules..."
-npm install -g yarn
 yarn
 echo "running develop script..."
 script/build_frontend

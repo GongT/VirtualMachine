@@ -37,9 +37,12 @@ if ! vm-command-exits proxy-server /usr/bin/gcc ; then
 	screen-run mdnf proxy-server install samba sed wget make tar file gcc-c++ \
 		pcre-devel mbedtls-devel libsodium-devel c-ares-devel libev-devel \
 		
-fitor
+fi
 
 ### tor
+if ! vm-command-exits proxy-server /usr/bin/tor ; then
+	screen-run mdnf proxy-server install tor obfs4
+fi
 vm-copy proxy-server config/torrc /etc/tor/torrc
 mkdir -p "$(vm-mount-type "[config]")/torrc.d"
 vm-systemctl proxy-server enable tor

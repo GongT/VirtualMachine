@@ -87,7 +87,7 @@ ControlPort 59102
 ## See https://www.torproject.org/docs/tor-doc-relay for details.
 
 ## Required: what port to advertise for incoming Tor connections.
-ORPort 59101
+#ORPort 59101
 ## If you want to listen on a port other than the one advertised in
 ## ORPort (e.g. to advertise 443 but bind to 9090), you can do it as
 ## follows.  You'll need to do ipchains or other port forwarding
@@ -97,7 +97,7 @@ ORPort 59101
 
 ## The IP address or full DNS name for incoming connections to your
 ## relay. Leave commented out and Tor will guess.
-Address tor.gongt.me
+#Address tor.gongt.me
 
 ## If you have multiple network interfaces, you can specify one for
 ## outgoing traffic to use.
@@ -113,7 +113,7 @@ Address tor.gongt.me
 ## Nicknames must be between 1 and 19 characters inclusive, and must
 ## contain only the characters [a-zA-Z0-9].
 ## If not set, "Unnamed" will be used.
-Nickname GongT
+#Nickname GongT
 
 ## Define these to limit how much relayed traffic you will allow. Your
 ## own traffic is still unthrottled. Note that RelayBandwidthRate must
@@ -240,9 +240,10 @@ Nickname GongT
 #%include /etc/torrc.d/
 #%include /etc/torrc.custom
 
-
 ExcludeExitNodes {CN}
 
+UseBridges 1
+ClientTransportPlugin obfs2,obfs3,obfs4,scramblesuit exec /usr/bin/obfs4proxy
 
 %include /config/torrc.d/
 

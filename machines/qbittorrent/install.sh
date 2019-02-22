@@ -3,8 +3,8 @@
 source ../../lib/nspawn.sh
 source ../../lib/systemd.sh
 
-QB_RELEASE=https://github.com/qbittorrent/qBittorrent/archive/release-4.1.1.tar.gz
-LIBT_RELEASE=https://github.com/arvidn/libtorrent/archive/libtorrent-1_1_7.tar.gz
+QB_RELEASE=https://github.com/qbittorrent/qBittorrent/archive/release-4.1.4.tar.gz
+LIBT_RELEASE=https://github.com/arvidn/libtorrent/releases/download/libtorrent_1_1_11/libtorrent-rasterbar-1.1.11.tar.gz
 
 function prepare() {
 	vm-use-network bridge
@@ -29,17 +29,17 @@ vm-copy qbittorrent i3.service /etc/systemd/system/
 vm-systemctl qbittorrent enable qbittorrent i3 xvnc0
 
 ## compile
-QB_TARGET=$(vm-file qbittorrent /opt/qbittorrent.tar.gz)
+QB_TARGET=$(vm-file qbittorrent "/opt/$(basename "$QB_RELEASE")")
 if [ ! -e "${QB_TARGET}" ] ; then
 	wget -c "${QB_RELEASE}" -O "${QB_TARGET}.downloading"
 	mv "${QB_TARGET}.downloading" "${QB_TARGET}"
 fi
-LIBT_TARGET=$(vm-file qbittorrent /opt/libtorrent.tar.gz)
+LIBT_TARGET=$(vm-file qbittorrent "/opt/$(basename "$LIBT_RELEASE")")
 if [ ! -e "${LIBT_TARGET}" ] ; then
 	wget -c "${LIBT_RELEASE}" -O "${LIBT_TARGET}.downloading"
 	mv "${LIBT_TARGET}.downloading" "${LIBT_TARGET}"
 fi
-#screen-run vm-script qbittorrent compile.sh "$(basename "${QB_TARGET}")" "$(basename "${LIBT_TARGET}")"
+screen-run vm-script qbittorrent compile.sh "$(basename "${QB_TARGET}")" "$(basename "${LIBT_TARGET}")"
 
 ## default config
 CONFIG_PATH="$(vm-mount-type [config])/qBittorrent/qBittorrent.conf"

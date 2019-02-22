@@ -16,7 +16,7 @@ mkdir -p libtorrent
 tar -xf "${LIBT_TAR_FILE}" --strip-components=1 -C ./libtorrent
 
 pushd libtorrent &>/dev/null
-./autotool.sh
+#zs ./autotool.sh
 # --enable-python-binding \
 # --with-boost-python \
 ./configure --prefix=/usr --config-cache \

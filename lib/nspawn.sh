@@ -102,7 +102,7 @@ function vm-run() {
 		sleep 2
 	fi
 	echo "attaching to container: $MACHINE..." >&2
-	machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@"
+	machinectl shell "$MACHINE" /bin/bash -c "$CMD" -- "$@" || die "VM-RUN failed ($CMD)"
 	
 	_stop-temp-machine
 }
@@ -143,6 +143,8 @@ function vm-script() {
 	
 	echo "#!/bin/bash
 
+export HTTP_PROXY=${HTTP_PROXY}
+export HTTPS_PROXY=${HTTPS_PROXY}
 if [ -e '/mnt/install/${RUN_BASE}' ]; then
 	source /mnt/install/_lib.sh
 	source '/mnt/install/${RUN_BASE}' ${ARGLIST}

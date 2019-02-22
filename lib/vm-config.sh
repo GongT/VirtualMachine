@@ -82,7 +82,7 @@ function vm-mount-type() {
 		echo "/"
 	;;
 	\[slowCache\])
-		echo "/data/SlowCache/${MACHINE}"
+		echo "/data/Cache/${MACHINE}"
 	;;
 	*)
 		die "unknown mount type: $1"
