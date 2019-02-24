@@ -1,0 +1,107 @@
+{
+	$id: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	$schema: "http://json-schema.org/draft-07/schema",
+	required: [ "hostname" ],
+	properties: {
+		hostname: { type: "string" },
+		mounts: {
+			type: "array",
+			items: {
+				type: "object",
+				required: [ "type", "destination" ],
+				properties: {
+					type: {
+						type: "string",
+						enum: [ "root", "share", "log", "data", "config", "socket", "source", "volumes" ]
+					},
+					host: { type: "string" },
+					destination: { type: "string" },
+					options: {
+						type: "array",
+						items: { type: "string", enum: [ "readonly" ] }
+					}
+				}
+			}
+		},
+		network: {
+			type: "object",
+			properties: {
+				type: {
+					type: "string",
+					enum: [ "private", "hostonly", "bridge" ]
+				},
+				interface: {
+					type: "string"
+				}
+			}
+		},
+		install: {
+			properties: {
+				packages: { type: "array", items: { type: "string" } },
+				packagesFile: { type: "string" },
+				initialConfigFiles: { type: "array", items: { type: "string" } },
+				copyFiles: {
+					type: "object",
+					additionalProperties: { type: "string" }
+				},
+				inject: {
+					type: "array",
+					items: {
+						type: "string",
+						enum: [ "ssh-key", "dnf" ]
+					}
+				},
+				service: {
+					type: "object",
+					additionalProperties: {
+						type: "object",
+						properties: {
+							enabled: {
+								type: [ "boolean", "array" ],
+								items: { type: "string" }
+							},
+							template: { type: "string" },
+							overwrite: { type: "string" }
+						}
+					}
+				}
+			}
+		},
+		download: {
+			type: "array",
+			items: {
+				type: "object",
+				required: [ "url", "saveAs" ],
+				properties: {
+					type: { type: "string", enum: [ "normal", "git", "github" ] },
+					url: { type: "string" },
+					saveAs: { type: "string" }
+				}
+			}
+		},
+		compile: {
+			type: "array",
+			items: {
+				type: "object",
+				required: [ "title", "script", "artifacts" ],
+				properties: {
+					title: { type: "string" },
+					script: { type: "string" },
+					artifacts: { type: "string" },
+					requirements: { type: "array", items: { type: "string" } }
+				}
+			}
+		},
+		environments: {
+			type: "object",
+			properties: {
+				profile: {
+					type: "object",
+					additionalProperties: { type: "string" }
+				},
+				PATH: { type: "array", items: { type: "string" } }
+			}
+		},
+		postscript: { type: "string" }
+	}
+}
