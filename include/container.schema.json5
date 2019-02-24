@@ -4,7 +4,7 @@
 	required: [ "hostname" ],
 	properties: {
 		hostname: { type: "string" },
-		mounts: {
+		mount: {
 			type: "array",
 			items: {
 				type: "object",
@@ -12,7 +12,7 @@
 				properties: {
 					type: {
 						type: "string",
-						enum: [ "root", "share", "log", "data", "config", "socket", "source", "volumes" ]
+						enum: [ "root", "share", "log", "data", "config", "socket", "source", "volume" ]
 					},
 					host: { type: "string" },
 					destination: { type: "string" },
