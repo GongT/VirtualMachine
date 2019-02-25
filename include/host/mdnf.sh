@@ -22,22 +22,6 @@ function run_dnf_client() {
 	pop_dir
 }
 
-function create_mdnf_client() {
-	prepare_ssh_client
-	mdnf_cache_dir "$HOME"
-	create_mdnf_run_args
-
-	local PATH="$(machine_path /usr/local/bin/dnf)"
-
-	echo "#!/bin/bash" > "$PATH"
-	echo -n "/usr/bin/ssh server \\" >> "$PATH"
-	for i in "${__TEMP_DNF_RUN[@]}"
-	do
-		echo -n " '$i'" >> "$PATH"
-	done
-	echo '"$@"' >> "$PATH"
-}
-
 function mdnf_cache_dir() {
 	CACHE_DIR=$(realpath --no-symlinks -m --relative-to "${1-$(pwd)}" /var/cache/dnf)
 	export CACHE_DIR
@@ -63,8 +47,31 @@ function create_mdnf_run_args() {
 
 function run_dnf() {
 	if is_inside_namespace; then
-		run_dnf_server "$@"
-	else
 		run_dnf_client "$@"
+	else
+		run_dnf_server "$@"
+	fi
+}
+
+function install_package() {
+	local PACKAGES="$1" PACKAGE_LIST="$2"
+	if is_null_or_empty "$PACKAGES" ; then
+		PACKAGES=""
+	fi
+	if ! is_null_or_empty "$PACKAGE_LIST" ; then
+		PACKAGES+=$(cat "$(realpath -m "$(where_host "$PACKAGE_LIST")")")
+	fi
+	if is_null_or_empty "$PACKAGES" ; then
+		return
+	fi
+
+	if [[ -n "$PACKAGES" ]]; then
+		{
+			echo "update"
+			echo -n "install "
+			echo ${PACKAGES}
+			echo "run"
+			echo "exit"
+		} | run_dnf shell
 	fi
 }

@@ -35,5 +35,5 @@ function shutdown() {
 
 function is_running() {
 	require_within
-	systemctl status -q -M "$CURRENT_MACHINE" >/dev/null
+	machinectl status "$CURRENT_MACHINE" &>/dev/null
 }

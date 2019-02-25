@@ -61,11 +61,12 @@ title: $TITLE
 command to run: $*
 pwd: $(pwd)
 machine: $CURRENT_MACHINE
+log file: $LOG_FILE
 ------------
 
-" > "$LOG_FILE"
+" | tee "$LOG_FILE" >&2
 	set +e
-	"$@" 2>&1 | tee -a "$LOG_FILE"
+	cat | "$@" 2>&1 | tee -a "$LOG_FILE"
 	RET=$?
 	set -e
 	echo "

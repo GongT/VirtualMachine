@@ -1,0 +1,2 @@
+[Service]
+ExecStartPre=/bin/bash /opt/scripts/prestart.sh

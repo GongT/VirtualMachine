@@ -29,26 +29,30 @@ function query_json_condition() {
 function foreach_array() {
 	# callback index index size < current
 	local LINES=() QUERY="$1" CALLBACK="$2" VALUE I LEN
+	shift
+	shift
 	LINES=($(query_json "$QUERY [] | @base64"))
 
 	LEN="${#LINES[@]}"
 	LEN=$(($LEN - 1))
 	for I in "${!LINES[@]}" ; do
 		VALUE="${LINES[$I]}"
-		echo "$VALUE" | base64 --decode | ${CALLBACK} "${I}" "${I}" "${LEN}"
+		echo "$VALUE" | base64 --decode | ${CALLBACK} "${I}" "${I}" "${LEN}" "$@"
 	done
 }
 
 function foreach_object() {
 	# callback key index size < current
 	local KEYS=() QUERY="$1" CALLBACK="$2" I LEN KEY KEY_QUOTE
+	shift
+	shift
 	KEYS=($(query_json "try $QUERY | keys [] | @base64"))
 
 	LEN="${#KEYS[@]}"
 	LEN=$(($LEN - 1))
 	for I in "${!KEYS[@]}" ; do
 		KEY="$(echo "${KEYS[$I]}" | base64 --decode)"
-		query_json "$QUERY[\"$KEY\"]" | ${CALLBACK} "${KEY}" "${I}" "${LEN}"
+		query_json "$QUERY[\"$KEY\"]" | ${CALLBACK} "${KEY}" "${I}" "${LEN}" "$@"
 	done
 }
 

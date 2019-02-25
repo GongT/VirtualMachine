@@ -5,17 +5,17 @@
 		{
 			type: "source",
 			host: ".",
-			destination: "/samba_share/DevelopmentRoot"
+			destination: "/samba_share_mountpoints/DevelopmentRoot"
 		},
 		{
 			type: "root",
 			host: "/dev/shm",
-			destination: "/samba_share/dev_shm"
+			destination: "/samba_share_mountpoints/shm"
 		},
 		{
 			type: "volume",
 			host: ".",
-			destination: "/samba_share/drives"
+			destination: "/samba_share_drives"
 		}
 	],
 	network: {
@@ -23,48 +23,25 @@
 	},
 	install: {
 		packages: [
-			"git",
-			"vim",
-			"nmap-ncat",
-			"tar",
-			"xz",
-			"gzip",
-			"git",
-			"hostname",
-			"libXext",
-			"findutils",
-			"libXrender",
-			"libXtst",
-			"freetype",
-			"wqy-*",
-			"rsync",
-			"procps-ng"
+			"samba",
+			"samba-dc",
+			"samba-common-tools",
+			"samba-winbind"
 		],
 		inject: [ "dnf" ],
+		copyFiles: {
+			"scripts": "/opt"
+		},
 		service: {
-			"sshd.socket": {
+			"smb": {
 				enabled: true,
-				overwrite: "sshd-overwrite.socket"
+				overwrite: "flush-config.service"
+			},
+			"nmb": {
+				enabled: true
 			}
 		}
 	},
-	download: [
-		{
-			type: "github",
-			url: "GongT/jetbrains-bootstrap-scripts",
-			saveAs: "/opt/JetBrains"
-		},
-		{
-			type: "github",
-			url: "GongT/simple-settings-repository",
-			saveAs: "/opt/JetBrains/DATA/PhpStorm/simple-settings-repository"
-		},
-		{
-			type: "github",
-			url: "GongT/idea-settings",
-			saveAs: "/opt/JetBrains/DATA/PhpStorm/simple-settings-repository/repo"
-		}
-	],
-	environment: {
-	}
+	download: [ ],
+	postscript: "create-user.sh"
 }

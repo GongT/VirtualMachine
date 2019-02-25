@@ -14,6 +14,8 @@ function within_machine() {
 	echo "Using virtual machine: ${TEXT_INFO}${1}${TEXT_RESET}"
 	inside_within && die "Control flow error: machine is already set."
 	export CURRENT_MACHINE="$1"
+
+	title_stack_push "Initializing machine $CURRENT_MACHINE..."
 }
 
 function end_within() {
@@ -71,13 +73,8 @@ function where_config() {
 	realpath --no-symlinks -m "/data/AppData/config/$CURRENT_MACHINE/$1"
 }
 
-function where_socket_from() {
-	realpath --no-symlinks -m "/dev/shm/MachinesSockets/$1"
-}
-
 function where_socket() {
-	require_within
-	realpath --no-symlinks -m "/dev/shm/MachinesSockets/$CURRENT_MACHINE/$1"
+	realpath --no-symlinks -m "/dev/shm/MachinesSockets/$1"
 }
 
 function where_source() {
@@ -99,10 +96,11 @@ function where_cache() {
 
 function init_log_file(){
 	local TARGET
+	local TS="$(date +%F.%H.%M.%S)"
 	if inside_within ; then
-		TARGET="$(machine_path "/var/tmp/$1.${RANDOM}.log")"
+		TARGET="$(machine_path "/tmp/$1.${TS}.log")"
 	else
-		TARGET= "/tmp/init-machines/$1.${RANDOM}.log"
+		TARGET="/tmp/init-machines/$1.${TS}.log"
 	fi
 	mkdir -p "$(dirname "$TARGET")"
 	echo "$TARGET"

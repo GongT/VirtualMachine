@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TEMPLATE_SOURCE_PATH=""
+[[ -z "$TEMPLATE_SOURCE_PATH" ]] && TEMPLATE_SOURCE_PATH=""
 function set_template_source() {
 	export TEMPLATE_SOURCE_PATH="$1"
 }

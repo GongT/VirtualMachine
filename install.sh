@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export MACHINE_TO_INSTALL=$1
+MACHINE_TO_INSTALL=$1
 if [[ -z "$MACHINE_TO_INSTALL" ]]; then
 	echo "Usage: $0 <machine-name-to-install>" >&2
 	exit 1

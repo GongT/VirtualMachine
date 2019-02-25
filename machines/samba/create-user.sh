@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo SHABAO-SHARE > /etc/hostname
-
 function create-all-user() {
 	local USER="$1"
 	local PASSWD="$2"
@@ -11,8 +9,6 @@ function create-all-user() {
 
 groupadd smbusers
 
-create-all-user GongT "#0624UFO"
+PASSWORD=$(ask "Please input password")
+create-all-user GongT "$PASSWORD"
 create-all-user Guest "123456"
-
-
-
