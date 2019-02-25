@@ -1,18 +1,21 @@
 {
 	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
-	hostname: "DevelopmentEnvironment",
-	mounts: [
+	hostname: "shabao-share",
+	mount: [
 		{
-			type: "root",
-			destination: "/data"
+			type: "source",
+			host: ".",
+			destination: "/samba_share/DevelopmentRoot"
 		},
 		{
 			type: "root",
-			destination: "/dev/shm"
+			host: "/dev/shm",
+			destination: "/samba_share/dev_shm"
 		},
 		{
-			type: "root",
-			destination: "/dev/dri"
+			type: "volume",
+			host: ".",
+			destination: "/samba_share/drives"
 		}
 	],
 	network: {
@@ -61,5 +64,7 @@
 			url: "GongT/idea-settings",
 			saveAs: "/opt/JetBrains/DATA/PhpStorm/simple-settings-repository/repo"
 		}
-	]
+	],
+	environment: {
+	}
 }

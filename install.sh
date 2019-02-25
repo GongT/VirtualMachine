@@ -1,31 +1,19 @@
 #!/usr/bin/env bash
 
-set -e
-
-cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-source lib/functions.sh
-
-if [ -z "$1" ]; then
-	die "Usage: $0 <machine>"
+export MACHINE_TO_INSTALL=$1
+if [[ -z "$MACHINE_TO_INSTALL" ]]; then
+	echo "Usage: $0 <machine-name-to-install>" >&2
+	exit 1
 fi
 
-if [ ! -e "/usr/local/bin/mdnf" ]; then
-	echo "#!/bin/bash
-
-source '$(pwd)/lib/mdnf.sh'
-
-mdnf \"\$@\"
-" >  /usr/local/bin/mdnf
-	chmod a+x /usr/local/bin/mdnf
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+if ! [[ -d "machines/$MACHINE_TO_INSTALL" ]]; then
+	echo "Required machine ($MACHINE_TO_INSTALL) not exists. (want: $(pwd)/machines/$MACHINE_TO_INSTALL)" >&2
+	exit 1
 fi
 
-if [ -e "./machines/$1/install.sh" ]; then
-	set -e
-	export INSTALL_ROOT="$(realpath "./machines/$1")"
-	cd "./machines/$1"
-	source "install.sh" || die "Install failed."
-else
-	die "No machine install script: $1"
-fi
+source "include/include.sh"
+cd "machines/$MACHINE_TO_INSTALL"
+set_template_source "$(pwd)"
 
-
+exec bash "$SCRIPT_INCLUDE_ROOT/entry.sh" "$MACHINE_TO_INSTALL" "$(where_host "${MACHINE_TO_INSTALL}.container.json5")"

@@ -1,5 +1,4 @@
 {
-	$id: "http://schemas.service.gongt.me/virtual-machine-installer.json",
 	$schema: "http://json-schema.org/draft-07/schema",
 	required: [ "hostname" ],
 	properties: {
@@ -12,7 +11,7 @@
 				properties: {
 					type: {
 						type: "string",
-						enum: [ "root", "share", "log", "data", "config", "socket", "source", "volume" ]
+						enum: [ "root", "share", "log", "data", "config", "socket", "source", "volume", "tmpfs" ]
 					},
 					host: { type: "string" },
 					destination: { type: "string" },
@@ -28,9 +27,9 @@
 			properties: {
 				type: {
 					type: "string",
-					enum: [ "private", "hostonly", "bridge" ]
+					enum: [ "disable", "hostonly", "bridge" ]
 				},
-				interface: {
+				br: {
 					type: "string"
 				}
 			}
@@ -92,15 +91,9 @@
 				}
 			}
 		},
-		environments: {
+		environment: {
 			type: "object",
-			properties: {
-				profile: {
-					type: "object",
-					additionalProperties: { type: "string" }
-				},
-				PATH: { type: "array", items: { type: "string" } }
-			}
+			additionalProperties: { type: "string" }
 		},
 		postscript: { type: "string" }
 	}

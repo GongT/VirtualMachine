@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 function is_inside_namespace() {
-	[[ "$(systemd-detect-virt)" != "systemd-nspawn" ]]
+	[[ "$(systemd-detect-virt)" = "systemd-nspawn" ]]
 }
 
 function within_machine() {
 	if [[ -z "$1" ]]; then
 		die "invalid machine name: (empty)"
 	fi
+	if ! echo "$1" | grep -qiE "^[a-z0-9]+$" ; then
+		die "invalid machine name: $1"
+	fi
+	echo "Using virtual machine: ${TEXT_INFO}${1}${TEXT_RESET}"
 	inside_within && die "Control flow error: machine is already set."
 	export CURRENT_MACHINE="$1"
 }
@@ -15,7 +19,7 @@ function within_machine() {
 function end_within() {
 	require_within
 	if is_inside_namespace ; then
-		die "Cannot end within inside namespace"
+		die "Cannot end_within when run as nspawn process"
 	fi
 	export CURRENT_MACHINE=""
 }
@@ -29,68 +33,77 @@ function require_within() {
 }
 
 function require_within_exists() {
-	[[ -e "$(machine_path "/etc/system-release")" ]] || die "Control flow error: current machine not exists."
-}
-
-function current_machine() {
-	require_within
-	echo "$CURRENT_MACHINE"
+	machine_path "/etc/system-release" | path_exists || die "Control flow error: current machine not exists."
 }
 
 function machine_path() {
-	realpath -m "/var/lib/machines/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/var/lib/machines/$CURRENT_MACHINE/$1"
+}
+
+function path_exists() {
+	local F_PATH
+	F_PATH="$(cat)"
+	[[ -e "$F_PATH" ]]
 }
 
 function where_share() {
-	realpath -m "/data/AppData/share/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/data/AppData/share/$CURRENT_MACHINE/$1"
 }
 
 function where_share_from() {
-	realpath -m "/data/AppData/share/$1/$2"
+	realpath --no-symlinks -m "/data/AppData/share/$1/$2"
 }
 
 function where_log() {
-	realpath -m "/data/AppData/logs/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/data/AppData/logs/$CURRENT_MACHINE/$1"
 }
 
 function where_app_data() {
-	realpath -m "/data/AppData/data/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/data/AppData/data/$CURRENT_MACHINE/$1"
 }
 
 function where_config() {
-	realpath -m "/data/AppData/config/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/data/AppData/config/$CURRENT_MACHINE/$1"
 }
 
 function where_socket_from() {
-	realpath -m "/dev/shm/MachinesSockets/$1"
+	realpath --no-symlinks -m "/dev/shm/MachinesSockets/$1"
 }
 
 function where_socket() {
-	realpath -m "/dev/shm/MachinesSockets/$(current_machine)/$1"
+	require_within
+	realpath --no-symlinks -m "/dev/shm/MachinesSockets/$CURRENT_MACHINE/$1"
 }
 
 function where_source() {
-	realpath -m "/data/DevelopmentRoot/$1"
+	realpath --no-symlinks -m "/data/DevelopmentRoot/$1"
 }
 
 function where_volume() {
-	realpath -m "/data/Volumes/$1"
+	realpath --no-symlinks -m "/data/Volumes/$1"
 }
 
 function where_cache() {
 	if inside_within ; then
-		realpath -m "/data/Cache/$(current_machine)/$1"
+		require_within
+		realpath --no-symlinks -m "/data/Cache/$CURRENT_MACHINE/$1"
 	else
-		realpath -m "/data/Cache/$1"
+		realpath --no-symlinks -m "/data/Cache/$1"
 	fi
 }
 
 function init_log_file(){
+	local TARGET
 	if inside_within ; then
-		mkdir -p "$(machine_path "/var/tmp")"
-		machine_path "/var/tmp/$1.${RANDOM}.log"
+		TARGET="$(machine_path "/var/tmp/$1.${RANDOM}.log")"
 	else
-		mkdir -p "/tmp/init-machines"
-		echo "/tmp/init-machines/$1.${RANDOM}.log"
+		TARGET= "/tmp/init-machines/$1.${RANDOM}.log"
 	fi
+	mkdir -p "$(dirname "$TARGET")"
+	echo "$TARGET"
 }

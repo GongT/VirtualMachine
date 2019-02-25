@@ -2,5 +2,6 @@
 !.idea/VirtualMachine.iml
 lib/remote-key.rsa
 lib/remote-key.rsa.pub
+node_modules
 
 PASSWORDS

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
 function die() {
-	echo -e "\e[38;5;9m$@\e[0m" >&2
-	exit 1
+	echo "\e[38;5;9m$@\e[0m" >&2
+	exit 100
 }
 
+__TITLE_STACK=()
 function title_stack_push() {
 	__TITLE_STACK+=("$*")
 	title "$*"
@@ -15,7 +16,9 @@ function title_stack_pop() {
 	fi
 	local CMD="unset __TITLE_STACK[-1]"
 	eval "${CMD}"
-	title "${__TITLE_STACK[-1]}"
+	if [[ "${#__TITLE_STACK[@]}" -eq 0 ]]; then
+		title "Untitled script"
+	fi
 }
 
 __ALTER_STATUS=0
@@ -47,20 +50,22 @@ function screen_normal() {
 }
 
 function screen_run() {
-	local TITLE="$1"
-	local LOG_FILE="$(init_log_file "screen-run")"
-	echo -n "Run: $TITLE - "
+	local TITLE="$1" LOG_FILE
+	shift
+	LOG_FILE="$(init_log_file "screen-run")"
+	echo -n "$TITLE - "
 	screen_alter "Running: $TITLE."
 
 	echo "------------
 title: $TITLE
 command to run: $*
+pwd: $(pwd)
 machine: $CURRENT_MACHINE
 ------------
 
 " > "$LOG_FILE"
 	set +e
-	"$@" | tee -a "$LOG_FILE"
+	"$@" 2>&1 | tee -a "$LOG_FILE"
 	RET=$?
 	set -e
 	echo "
@@ -70,13 +75,12 @@ exit code: $RET
 ------------" >> "$LOG_FILE"
 
 	screen_normal
-	echo -n "exit with $?. - "
 
 	if [[ ${RET} -eq 0 ]]; then
-		echo "Success!"
+		echo "${TEXT_OK}Success!${TEXT_RESET}${TEXT_MUTED} (log is at $LOG_FILE)${TEXT_RESET}"
 	else
-		echo_red "Failed!"
-		echo_red "\t View log at $LOG_FILE"
+		echo "exit with $RET. - ${TEXT_ERROR}Failed!${TEXT_RESET}"
+		echo "\t ${TEXT_ERROR}View log at $LOG_FILE${TEXT_RESET}"
 	fi
 
 	return ${RET}
@@ -91,5 +95,9 @@ function pop_dir() {
 }
 
 function title() {
-	echo -ne "\033]0;$*\007"
+	echo -n "\033]0;$*\007"
+}
+
+function echo() {
+	builtin echo -e "$@"
 }
