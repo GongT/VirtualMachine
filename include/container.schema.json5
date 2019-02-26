@@ -57,21 +57,21 @@
 						type: "string",
 						enum: [ "dnf" ]
 					}
-				},
-				service: {
-					type: "object",
-					additionalProperties: {
-						type: "object",
-						required: [ "enabled" ],
-						properties: {
-							enabled: {
-								type: [ "boolean", "array" ],
-								items: { type: "string" }
-							},
-							template: { type: "string" },
-							overwrite: { type: "string" }
-						}
-					}
+				}
+			}
+		},
+		service: {
+			type: "object",
+			additionalProperties: {
+				type: "object",
+				required: [ "enabled" ],
+				properties: {
+					enabled: {
+						type: [ "boolean", "array" ],
+						items: { type: "string" }
+					},
+					template: { type: "string" },
+					overwrite: { type: "string" }
 				}
 			}
 		},
@@ -79,12 +79,27 @@
 			type: "array",
 			items: {
 				type: "object",
-				required: [ "url", "saveAs" ],
-				properties: {
-					type: { type: "string", enum: [ "normal", "git", "github" ] },
-					url: { type: "string" },
-					saveAs: { type: "string" }
-				}
+				oneOf: [
+					{
+						required: [ "type", "url", "saveTo" ],
+						properties: {
+							type: { type: "string", enum: [ "git", "github" ] },
+							url: { type: "string" },
+							saveTo: { type: "string" },
+							branch: { type: "string" }
+						}
+					},
+					{
+						required: [ "url", "saveTo", "extract" ],
+						properties: {
+							type: { type: "string", enum: [ "normal" ] },
+							url: { type: "string" },
+							saveTo: { type: "string" },
+							extract: { type: "boolean" },
+							stripPath: { type: "number" }
+						}
+					}
+				]
 			}
 		},
 		compile: {
@@ -96,7 +111,13 @@
 					title: { type: "string" },
 					script: { type: "string" },
 					artifacts: { type: "string" },
-					requirements: { type: "array", items: { type: "string" } }
+					requirements: {
+						type: "object",
+						properties: {
+							packages: { type: "array", items: { type: "string" } },
+							packagesFile: { type: "string" }
+						}
+					}
 				}
 			}
 		},

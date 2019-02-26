@@ -28,7 +28,6 @@
 			"samba-common-tools",
 			"samba-winbind"
 		],
-		inject: [ "dnf" ],
 		copyFiles: {
 			"scripts": "/opt"
 		},

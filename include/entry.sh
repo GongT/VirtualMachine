@@ -30,4 +30,5 @@ fi
 
 run_main "create-machine.sh"
 run_main "download-requires.sh"
-
+run_main "run-compile.sh"
+run_main "enable-service.sh"
