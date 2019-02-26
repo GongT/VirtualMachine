@@ -32,3 +32,8 @@ run_main "create-machine.sh"
 run_main "download-requires.sh"
 run_main "run-compile.sh"
 run_main "enable-service.sh"
+
+within_machine "$MACHINE_TO_INSTALL"
+create_machine_service
+boot
+end_within

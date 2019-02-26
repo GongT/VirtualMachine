@@ -102,3 +102,11 @@ function title() {
 function echo() {
 	builtin echo -e "$@"
 }
+
+function ask() {
+	local MSG="$1" readVal OUT="$2"
+	while [[ -z "$readVal" ]] ; do
+	    read -p "$MSG> " readVal
+	done
+	eval "$OUT='$readVal'"
+}

@@ -8,14 +8,8 @@ function append() {
 	echo "$@" >> "$NSPAWN"
 }
 
-function generate_environments() {
-	append "Environment=$1=$(cat)"
-}
-
 function generate_mounts() {
-	local INDEX="$1"
-	local VALUE TYPE HOST DESTINATION LINE
-	VALUE="$(cat)"
+	local INDEX="$2" VALUE="$1" TYPE HOST DESTINATION LINE
 
 	HOST="$(echo "$VALUE" | query_json_value ".host")"
 	if is_null_or_empty "$HOST" ; then
@@ -75,6 +69,7 @@ function generate_network() {
 		append "VirtualEthernet=yes"
 		append "VirtualEthernetExtra=vm-$MACHINE_TO_INSTALL:hostonly"
 		append "Zone=hostonly"
+		chroot_systemctl_enable systemd-networkd systemd-resolved
 	;;
 	bridge)
 		local BR_NAME
@@ -84,6 +79,7 @@ function generate_network() {
 		fi
 		append "Private=yes"
 		append "Bridge=$BR_NAME"
+		chroot_systemctl_enable systemd-networkd systemd-resolved
 	;;
 	*)
 		die "Unknown networking type: $NETWORK_TYPE"
@@ -100,9 +96,6 @@ Environment=LANG=en_US.UTF-8
 Environment=DISPLAY=:0
 NotifyReady=yes
 " > "$NSPAWN"
-
-echo "      * environments"
-foreach_object ".environments" generate_environments
 
 echo "      * network"
 generate_network

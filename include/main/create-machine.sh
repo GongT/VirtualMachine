@@ -42,8 +42,7 @@ echo "  - Required packages installed."
 
 ### inject custom tool like dnf ###
 function call_inject_script() {
-	local WHAT
-	WHAT="$(cat)"
+	local WHAT="$1"
 	run_main "inject.sh" "$WHAT"
 	echo "  - inject tool: $WHAT"
 }
@@ -51,7 +50,7 @@ foreach_array '.install.inject' call_inject_script
 
 ### copy files from current dir to remote ###
 function call_copy_files() {
-	local FROM="$1" TARGET="$(cat)" FROM_ABS TARGET_ABS COUNT
+	local FROM="$2" TARGET="$1" FROM_ABS TARGET_ABS COUNT
 	echo "Copy '${FROM}' to '${TARGET}'..."
 	FROM_ABS=$(where_host "$FROM")
 	TARGET_ABS=$(machine_path "$TARGET")
@@ -73,8 +72,7 @@ fi
 
 ### create symlink from /etc or /var/log or ... to /mnt/xxx
 function create_bind_link() {
-	local SOURCE="$4" LINK="$5" VALUE TARGET
-	VALUE="$(cat)"
+	local SOURCE="$5" LINK="$6" VALUE="$1" TARGET
 	TARGET="$(machine_path "${LINK}/${VALUE}")"
 	if [[ -L "$TARGET" ]] ; then
 		unlink "$TARGET"
@@ -88,6 +86,22 @@ function create_bind_link() {
 foreach_array ".bind.socket" create_bind_link "/mnt/socket" "/var/run"
 foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
 foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
+
+### create profile ###
+PROFILE="$(machine_path /etc/profile.d/environment.sh)"
+ENVFILE="$(machine_path /etc/environment)"
+function generate_environments() {
+	local KEY="$2" VALUE="$1"
+	if [[ "$VALUE" = "*ask" ]]; then
+		ask "Please input value of $KEY" VALUE
+	fi
+	echo "export $KEY=$VALUE" > "$PROFILE"
+	echo "$KEY=$VALUE" > "$ENVFILE"
+}
+
+echo "" > "$PROFILE"
+echo "" > "$ENVFILE"
+foreach_object ".environment" generate_environments
 
 ### finished ###
 end_within

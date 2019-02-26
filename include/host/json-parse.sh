@@ -37,13 +37,14 @@ function foreach_array() {
 	LEN=$(($LEN - 1))
 	for I in "${!LINES[@]}" ; do
 		VALUE="${LINES[$I]}"
-		echo "$VALUE" | base64 --decode | ${CALLBACK} "${I}" "${I}" "${LEN}" "$@"
+		VALUE=$(echo "$VALUE" | base64 --decode)
+		${CALLBACK} "$VALUE" "${I}" "${I}" "${LEN}" "$@"
 	done
 }
 
 function foreach_object() {
-	# callback key index size < current
-	local KEYS=() QUERY="$1" CALLBACK="$2" I LEN KEY KEY_QUOTE
+	# callback value key index size < current
+	local KEYS=() VALUE QUERY="$1" CALLBACK="$2" I LEN KEY KEY_QUOTE
 	shift
 	shift
 	KEYS=($(query_json "try $QUERY | keys [] | @base64"))
@@ -52,7 +53,8 @@ function foreach_object() {
 	LEN=$(($LEN - 1))
 	for I in "${!KEYS[@]}" ; do
 		KEY="$(echo "${KEYS[$I]}" | base64 --decode)"
-		query_json "$QUERY[\"$KEY\"]" | ${CALLBACK} "${KEY}" "${I}" "${LEN}" "$@"
+		VALUE=$(query_json "$QUERY[\"$KEY\"]")
+		${CALLBACK} "$VALUE" "${KEY}" "${I}" "${LEN}" "$@"
 	done
 }
 

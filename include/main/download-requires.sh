@@ -4,8 +4,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 source ../include.sh
 
 function do_download_file() {
-	local VAL TYPE URL SAVE_TO
-	VAL=$(cat)
+	local VAL="$1" TYPE URL SAVE_TO
 	TYPE=$(echo "$VAL" | query_json_value '.type')
 	URL=$(echo "$VAL" | query_json_value '.url')
 

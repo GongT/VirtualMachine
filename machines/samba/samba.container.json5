@@ -26,20 +26,24 @@
 			"samba",
 			"samba-dc",
 			"samba-common-tools",
-			"samba-winbind"
+			"samba-winbind",
+			"passwd"
 		],
 		copyFiles: {
 			"scripts": "/opt"
-		},
-		service: {
-			"smb": {
-				enabled: true,
-				overwrite: "flush-config.service"
-			},
-			"nmb": {
-				enabled: true
-			}
 		}
+	},
+	service: {
+		"smb": {
+			enabled: true,
+			overwrite: "flush-config.service"
+		},
+		"nmb": {
+			enabled: true
+		}
+	},
+	environment: {
+		PASSWORD: "*ask"
 	},
 	download: [ ],
 	postscript: "create-user.sh"
