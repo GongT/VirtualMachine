@@ -26,6 +26,46 @@ done
 
 echo "tty=$PROC"
 
+function create_section() {
+	local T_PATH="$1" OPTIONS LABEL
+	local LABEL_FILE="${I}/.\$samba/disklabel.txt"
+	if [[ -e "$LABEL_FILE" ]]; then
+		LABEL=$(< "$LABEL_FILE")
+	else
+		LABEL="$(basename "${T_PATH}")"
+		if [[ "$LABEL" = "shm" ]]; then
+			LABEL="System Memory"
+		fi
+	fi
+
+	local OPTIONS_FILE="${I}/.\$samba/disklabel.txt"
+	if [[ -e "$OPTIONS_FILE" ]]; then
+		OPTIONS="$(echo $(< "$OPTIONS_FILE"))"
+	else
+		OPTIONS="acl_xattr"
+	fi
+
+	echo "
+[$(basename "${T_PATH}")]
+	comment = ${LABEL}
+	path = ${T_PATH}/
+	writable = yes
+	read only = no
+	vfs objects = $OPTIONS
+	nt acl support = yes
+	public = yes
+	inherit acls = yes
+	browseable = yes
+	create mask = 0644
+	directory mask = 0755
+	recycle:repository = ${T_PATH}/.\$samba/recycle/%U
+	recycle:touch = no
+	recycle:keeptree = yes
+	recycle:versions = no
+	recycle:excludedir = .\$samba
+" >> /etc/samba/smb.conf
+}
+
 rm -f /var/log/samba/log.nmbd || true
 
 echo "[global]
@@ -66,43 +106,3 @@ done
 for I in /samba_share_drives/*/ ; do
 	create_section "$I"
 done
-
-function create_section() {
-	local PATH="$1" OPTIONS LABEL
-	local LABEL_FILE="${I}/.\$samba/disklabel.txt"
-	if [[ -e "$LABEL_FILE" ]]; then
-		LABEL=$(< "$LABEL_FILE")
-	else
-		LABEL="$(basename "${PATH}")"
-		if [[ "$LABEL" = "shm" ]]; then
-			LABEL="System Memory"
-		fi
-	fi
-
-	local OPTIONS_FILE="${I}/.\$samba/disklabel.txt"
-	if [[ -e "$OPTIONS_FILE" ]]; then
-		OPTIONS="$(echo $(< "$OPTIONS_FILE"))"
-	else
-		OPTIONS="acl_xattr"
-	fi
-
-	echo "
-[$(basename "${PATH}")]
-	comment = ${LABEL}
-	path = ${PATH}/
-	writable = yes
-	read only = no
-	vfs objects = $OPTIONS
-	nt acl support = yes
-	public = yes
-	inherit acls = yes
-	browseable = yes
-	create mask = 0644
-	directory mask = 0755
-	recycle:repository = ${PATH}/.\$samba/recycle/%U
-	recycle:touch = no
-	recycle:keeptree = yes
-	recycle:versions = no
-	recycle:excludedir = .\$samba
-" >> /etc/samba/smb.conf
-}

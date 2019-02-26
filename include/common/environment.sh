@@ -86,17 +86,12 @@ function where_volume() {
 }
 
 function where_cache() {
-	if inside_within ; then
-		require_within
-		realpath --no-symlinks -m "/data/Cache/$CURRENT_MACHINE/$1"
-	else
-		realpath --no-symlinks -m "/data/Cache/$1"
-	fi
+	realpath --no-symlinks -m "/data/Cache/$1"
 }
 
 function init_log_file(){
 	local TARGET
-	local TS="$(date +%F.%H.%M.%S)"
+	local TS="$(date +%F.%H.%M.%S).${RANDOM}"
 	if inside_within ; then
 		TARGET="$(machine_path "/tmp/$1.${TS}.log")"
 	else

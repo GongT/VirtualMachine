@@ -3,21 +3,22 @@
 function prepare_ssh_client() {
 	local TARGET_RSA_FILE
 
-	TARGET_RSA_FILE="$(machine_path "/root/id_rsa")"
+	TARGET_RSA_FILE="$(machine_path "/root/.ssh/id_rsa")"
 	if [[ -e "$TARGET_RSA_FILE" ]]; then
 		return
 	fi
 
 	local KEY_FILE="/var/lib/machines/id_rsa"
 	local PUB_FILE="/var/lib/machines/id_rsa.pub"
-	if ! [[ -e "/var/lib/machines/id_rsa" ]]; then
+	if ! [[ -e "$KEY_FILE" ]]; then
 		ssh-keygen -t rsa -f "$KEY_FILE" -N ""
 		concat_authorized_keys /root/.ssh/authorized_keys "${PUB_FILE}"
 	fi
 
+	mkdir -p "$(dirname "$TARGET_RSA_FILE")"
 	cp -fv "${KEY_FILE}" "$TARGET_RSA_FILE"
 
-	run_dnf_server -y install openssh-clients
+	run_dnf_server install openssh-clients
 }
 
 function concat_authorized_keys() {

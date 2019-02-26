@@ -26,7 +26,7 @@ function do_download_file() {
 	;&
 	git)
 		clone_repo "$URL"
-		screen_run "Checkout" checkout_repo \
+		checkout_repo \
 			"$(echo "$VAL" | query_json_value '.branch // "master"')" \
 			"$(get_last_download)" \
 			"$SAVE_TO"

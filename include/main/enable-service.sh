@@ -25,7 +25,6 @@ function init_service() {
 	case "$ENABLED_TYPE" in
 	boolean)
 		if echo "$VAL" | query_json_condition '.enabled' ; then
-		EVER_ENABLED+=("$NAME")
 			chroot_systemctl_enable "$NAME"
 		else
 			chroot_systemctl_disable "$NAME"
@@ -37,7 +36,6 @@ function init_service() {
 		fi
 		local PRE="${NAME%%@*}" POS="${NAME##*@}" LIST
 		LIST=$(echo "$VAL" | query_json_value '.enabled[]' | xargs -IF bash -c "echo '${PRE}@F${POS}'")
-		EVER_ENABLED+=(${LIST})
 		chroot_systemctl_enable ${LIST}
 	;;
 	*)
@@ -47,7 +45,6 @@ function init_service() {
 
 within_machine "$MACHINE_TO_INSTALL"
 
-EVER_ENABLED=()
 foreach_object '.service' init_service
 
 INIT_SCRIPT=$(query_json '.postscript')
@@ -60,7 +57,7 @@ if ! is_null_or_empty "$INIT_SCRIPT" ; then
 	TMP_FILE="/tmp/created-init-script-${RANDOM}.service"
 	echo "
 [Unit]
-Before=multi-user.target ${EVER_ENABLED[@]}
+Before=multi-user.target network.target
 ConditionFileNotEmpty=!/var/first-boot.lock
 OnFailure=poweroff.target
 OnFailureJobMode=replace-irreversibly

@@ -23,10 +23,19 @@ function create_mdnf_client() {
 	chmod a+x "$T_PATH"
 }
 
+function copy_ssh_keys() {
+	echo "$TEXT_MUTED"
+	cp -rfv ~/.ssh "$(machine_path /root)"
+	echo "$TEXT_RESET"
+}
+
 require_within
 case "$ACTION" in
 dnf)
 	create_mdnf_client
+;;
+ssh-keys)
+	copy_ssh_keys
 ;;
 *)
 	die "Unknown inject action: $ACTION"

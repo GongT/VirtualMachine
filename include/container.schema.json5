@@ -7,7 +7,7 @@
 			type: "array",
 			items: {
 				type: "object",
-				required: [ "type", "destination" ],
+				required: [ "type", "host", "destination" ],
 				properties: {
 					type: {
 						type: "string",
@@ -55,7 +55,7 @@
 					type: "array",
 					items: {
 						type: "string",
-						enum: [ "dnf" ]
+						enum: [ "dnf", "ssh-keys" ]
 					}
 				}
 			}

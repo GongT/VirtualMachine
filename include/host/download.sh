@@ -16,7 +16,7 @@ function download_file() {
 	fi
 
 	mkdir -p "$(dirname "${TARGET}")"
-	screen_run "Download $BASE" wget "${URL}" -c -O "${TARGET}.downloading"
+	screen_run "Download $URL" wget "${URL}" -c -O "${TARGET}.downloading" --quiet --show-progress --progress=bar:force:noscroll
 	mv "${TARGET}.downloading" "${TARGET}"
 
 	__LAST_DOWNLOAD_FILE="$TARGET"
@@ -33,7 +33,7 @@ function clone_repo() {
 		screen_run "Git Update" git fetch
 		pop_dir
 	else
-		screen_run "Git Clone" git clone "$URL" "$TARGET"
+		screen_run "Git Clone" git clone --bare "$URL" "$TARGET"
 	fi
 	__LAST_DOWNLOAD_FILE="$TARGET"
 }
@@ -58,7 +58,7 @@ function extract_downloaded(){
 }
 
 function checkout_repo() {
-	local BRANCH="${1-master}" REPO="$1" TARGET="$2"
+	local BRANCH="${1-master}" REPO="$2" TARGET="$3"
 	push_dir "$REPO"
 
 	mkdir -p "$TARGET"

@@ -1,0 +1,57 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "DevelopmentEnvironment",
+	mount: [
+		{
+			type: "root",
+			host: "/data",
+			destination: "/data"
+		},
+		{
+			type: "root",
+			host: "/data",
+			destination: "/dev/shm"
+		}
+	],
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packages: [
+			"git",
+			"vim",
+			"nmap-ncat",
+			"tar",
+			"xz",
+			"gzip",
+			"git",
+			"hostname",
+			"libXext",
+			"findutils",
+			"libXrender",
+			"libXtst",
+			"freetype",
+			"wqy-*",
+			"rsync",
+			"procps-ng",
+			"openssh-server"
+		],
+		inject: [ "dnf", "ssh-keys" ]
+	},
+	service: {
+		"sshd.socket": {
+			enabled: true,
+			overwrite: "sshd-overwrite.socket"
+		}
+	},
+	download: [
+		{
+			type: "normal",
+			url: "https://download.jetbrains.com/webide/PhpStorm-2018.3.4.tar.gz",
+			saveTo: "/opt/JetBrains/PhpStorm",
+			extract: true,
+			stripPath: 1
+		}
+	],
+	postscript: "init.sh"
+}

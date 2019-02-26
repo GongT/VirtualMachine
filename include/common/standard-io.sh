@@ -66,7 +66,7 @@ log file: $LOG_FILE
 
 " | tee "$LOG_FILE" >&2
 	set +e
-	cat | "$@" 2>&1 | tee -a "$LOG_FILE"
+	"$@" 2>&1 | tee -a "$LOG_FILE"
 	RET=$?
 	set -e
 	echo "
