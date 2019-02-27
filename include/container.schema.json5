@@ -27,6 +27,7 @@
 			properties: {
 				initConfig: { type: "string" },
 				config: { type: "array", items: { type: "string" } },
+				cache: { type: "array", items: { type: "string" } },
 				log: { type: "array", items: { type: "string" } },
 				socket: { type: "array", items: { type: "string" } }
 			}

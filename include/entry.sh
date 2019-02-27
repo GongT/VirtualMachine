@@ -8,8 +8,9 @@ set -e
 # echo an error message before exiting
 trap '
 RET=$?
+CMD="$BASH_COMMAND"
 if [[ "$RET" -ne 0 ]]; then
-	echo "* the command ${TEXT_INFO}${BASH_COMMAND}${TEXT_RESET} has filed with exit code $RET."
+	echo "* the command ${TEXT_INFO}${CMD}${TEXT_RESET} has filed with exit code $RET."
 	exit "$RET"
 else
 	echo "Done."

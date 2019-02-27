@@ -20,6 +20,9 @@ function do_download_file() {
 			extract_downloaded "$(echo "$VAL" | query_json_value '.stripPath // 0')"
 		fi
 		screen_run "Copy Result" cp -rvf "$(get_last_download)" "$SAVE_TO"
+		if echo "$VAL" | query_json_condition ".extract" ; then
+			rm -rf "$(get_last_download)"
+		fi
 	;;
 	github)
 		URL="https://github.com/${URL}.git"

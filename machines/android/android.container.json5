@@ -1,0 +1,19 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "android-build-environment",
+	mount: [ ],
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packagesFile: "packages.lst",
+		copyFiles: {
+			"ssh": "/etc"
+		}
+	},
+	service: {
+		"sshd.socket": {
+			enabled: true
+		}
+	}
+}

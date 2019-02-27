@@ -1,0 +1,16 @@
+[Unit]
+Before=multi-user.target network.target
+ConditionDirectoryNotEmpty=!/opt/home-assistant-frontend/hass_frontend_es5
+
+[Service]
+EnvironmentFile=/etc/environment
+WorkingDirectory=/opt/home-assistant-frontend
+Type=simple
+RemainAfterExit=true
+ExecStart=/bin/bash --login /opt/scripts/build-frontend.sh
+StandardError=journal+console
+StandardOutput=journal+console
+TimeoutStartSec=30m
+
+[Install]
+WantedBy=multi-user.target

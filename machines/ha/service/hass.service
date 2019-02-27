@@ -1,0 +1,13 @@
+[Unit]
+Description=Home Assistant
+After=network.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/environment
+WorkingDirectory=/opt/home-assistant
+ExecStartPre=/bin/bash '/opt/scripts/pre-start.sh'
+ExecStart=/usr/bin/env python3 -m homeassistant --config /etc/hass --log-file /var/log/hass/home-assistant.log
+
+[Install]
+WantedBy=multi-user.target

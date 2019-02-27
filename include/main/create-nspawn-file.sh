@@ -43,6 +43,7 @@ function generate_mounts() {
 	share) FROM=$(where_share "$HOST") ;;
 	data) FROM=$(where_app_data "$HOST") ;;
 	source) FROM=$(where_source "$HOST") ;;
+	cache) FROM=$(where_source "$HOST") ;;
 	volume) FROM=$(where_volume "$HOST") ;;
 	*)
 		die "Unknown filesystem type $TYPE"
@@ -105,13 +106,18 @@ append "[Files]"
 foreach_array ".mount" generate_mounts
 
 if [[ "$(query_json ".bind.log | length")" -ne 0 ]]; then
+	mkdir -p "$(where_log)"
 	append "Bind=$(where_log):/mnt/log"
 fi
 if [[ "$(query_json ".bind.config | length")" -ne 0 ]]; then
+	mkdir -p "$(where_config)"
 	append "BindReadOnly=$(where_config):/mnt/config"
 fi
-if [[ "$(query_json ".socket | length")" -ne 0 ]] ; then
+if [[ "$(query_json ".bind.socket | length")" -ne 0 ]] ; then
 	append "Bind=$(where_socket):/mnt/socket"
+fi
+if [[ "$(query_json ".bind.cache | length")" -ne 0 ]]; then
+	append "Bind=$(where_cache):/mnt/cache"
 fi
 
 echo >> "$NSPAWN"

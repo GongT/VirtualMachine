@@ -67,7 +67,7 @@ log file: $LOG_FILE
 " | tee "$LOG_FILE" >&2
 	set +e
 	"$@" 2>&1 | tee -a "$LOG_FILE"
-	RET=$?
+	RET="${PIPESTATUS[0]}"
 	set -e
 	echo "
 

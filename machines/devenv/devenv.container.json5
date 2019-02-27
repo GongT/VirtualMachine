@@ -34,7 +34,10 @@
 			"wqy-*",
 			"rsync",
 			"procps-ng",
-			"openssh-server"
+			"openssh-server",
+			"screen",
+			"iputils",
+			"iproute"
 		],
 		inject: [ "dnf", "ssh-keys" ]
 	},

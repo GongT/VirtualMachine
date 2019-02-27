@@ -24,7 +24,7 @@ function init_service() {
 	ENABLED_TYPE="$(echo "$VAL" | query_json_value '.enabled | type')"
 	case "$ENABLED_TYPE" in
 	boolean)
-		if echo "$VAL" | query_json_condition '.enabled' ; then
+		if echo "$VAL" | query_json_condition '.enabled' >/dev/null ; then
 			chroot_systemctl_enable "$NAME"
 		else
 			chroot_systemctl_disable "$NAME"
@@ -66,10 +66,11 @@ OnFailureJobMode=replace-irreversibly
 EnvironmentFile=/etc/environment
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/bin/bash \"$SCRIPT\"
+ExecStart=/bin/bash --login \"$SCRIPT\"
 ExecStartPost=/bin/bash -c 'echo yes > /var/first-boot.lock'
 StandardError=journal+console
 StandardOutput=journal+console
+TimeoutStartSec=10m
 
 [Install]
 WantedBy=multi-user.target

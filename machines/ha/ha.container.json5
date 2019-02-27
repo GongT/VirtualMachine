@@ -1,0 +1,53 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "home-assistant",
+	mount: [ ],
+	bind: {
+		config: [ "hass" ],
+		initConfig: "config",
+		cache: [ "npm", "Yarn" ],
+		log: [ "hass" ]
+	},
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packagesFile: "packages.lst",
+		copyFiles: {
+			"service/pre-start.sh": "/opt/scripts/pre-start.sh",
+			"service/build-frontend.sh": "/opt/scripts/build-frontend.sh",
+			"rcs/npmrc": "/usr/etc/npmrc",
+			"rcs/yarnrc": "/usr/etc/yarnrc"
+		}
+	},
+	download: [
+		{
+			type: "github",
+			url: "home-assistant/home-assistant",
+			saveTo: "/opt/home-assistant"
+		},
+		{
+			type: "github",
+			url: "home-assistant/home-assistant-polymer",
+			saveTo: "/opt/home-assistant-frontend"
+		}
+	],
+	environment: {
+		"HTTPS_PROXY": "*pass",
+		"HTTP_PROXY": "*pass"
+	},
+	service: {
+		"home-assistant-build.service": {
+			enabled: true,
+			template: "service/hass-build.service"
+		},
+		"home-assistant.service": {
+			enabled: true,
+			template: "service/hass.service"
+		},
+		"mosquitto.service": {
+			enabled: true
+		}
+	},
+	postscript: "service/install-deps.sh"
+}

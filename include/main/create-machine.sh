@@ -55,7 +55,8 @@ function call_copy_files() {
 	FROM_ABS=$(where_host "$FROM")
 	TARGET_ABS=$(machine_path "$TARGET")
 	echo -n "${TEXT_MUTED}" >&2
-	COUNT=$(cp -vr -- "$FROM_ABS" "$TARGET_ABS" | tee /dev/stderr | wc -l)
+	mkdir -p "$(dirname "$TARGET_ABS")"
+	COUNT=$(cp -vr -- "$FROM_ABS" "$TARGET_ABS" | wc -l)
 	echo -n "${TEXT_RESET}" >&2
 	echo "  ${COUNT} files copied."
 }
@@ -65,27 +66,29 @@ foreach_object '.install.copyFiles' call_copy_files
 INIT_CONFIG_PATH="$(query_json ".bind.initConfig")"
 if ! is_null_or_empty "$INIT_CONFIG_PATH" ; then
 	CONFIG_STORE="$(where_config)"
-	mkdir "$CONFIG_STORE"
+	mkdir -p "$CONFIG_STORE"
 	# -n / --no-clobber: no overwrite
-	cp --no-clobber -vf "$(where_host "${INIT_CONFIG_PATH}")/." "$CONFIG_STORE"
+	cp --no-clobber -rf "$(where_host "${INIT_CONFIG_PATH}")/." "$CONFIG_STORE"
 fi
 
 ### create symlink from /etc or /var/log or ... to /mnt/xxx
 function create_bind_link() {
-	local SOURCE="$5" LINK="$6" VALUE="$1" TARGET
-	TARGET="$(machine_path "${LINK}/${VALUE}")"
-	if [[ -L "$TARGET" ]] ; then
-		unlink "$TARGET"
+	local FROM="$5" TO="$6" VALUE="$1" LINK TARGET
+	LINK="$(machine_path "${TO}/${VALUE}")"
+	TARGET="$(realpath --no-symlinks -m "${FROM}/${VALUE}")"
+	if [[ -L "$LINK" ]] ; then
+		unlink "$LINK"
 	fi
-	if [[ -e "$TARGET" ]] ; then
-		rm -rf "$TARGET"
+	if [[ -e "$LINK" ]] ; then
+		rm -rf "$LINK"
 	fi
-	echo "    ${TEXT_MUTED}create link: ${TARGET}${TEXT_RESET}"
-	ln -s "$(realpath --no-symlinks -m "${LINK}/${VALUE}")"
+	echo "    ${TEXT_MUTED}create link: $LINK, point to: $TARGET.${TEXT_RESET}"
+	ln -s "$TARGET" "$LINK"
 }
 foreach_array ".bind.socket" create_bind_link "/mnt/socket" "/var/run"
 foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
 foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
+foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
 
 ### create profile ###
 PROFILE="$(machine_path /etc/profile.d/environment.sh)"
@@ -94,14 +97,21 @@ function generate_environments() {
 	local KEY="$2" VALUE="$1"
 	if [[ "$VALUE" = "*ask" ]]; then
 		ask "Please input value of $KEY" VALUE
+	elif [[ "$VALUE" = "*pass" ]]; then
+		if [[ -z "${!KEY}" ]]; then
+			die "Requiring environment variable: ${KEY}. which is missing."
+		fi
+		VALUE="${!KEY}"
 	fi
-	echo "export $KEY=$VALUE" > "$PROFILE"
-	echo "$KEY=$VALUE" > "$ENVFILE"
+	echo "export $KEY=$VALUE" >> "$PROFILE"
+	echo "$KEY=$VALUE" >> "$ENVFILE"
+	echo "    ${TEXT_MUTED}$KEY=$VALUE${TEXT_RESET}"
 }
 
 echo "" > "$PROFILE"
 echo "" > "$ENVFILE"
 foreach_object ".environment" generate_environments
+echo "  - Created environment file."
 
 ### finished ###
 end_within

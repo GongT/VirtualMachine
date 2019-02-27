@@ -7,7 +7,7 @@ function get_last_download() {
 
 function download_file() {
 	local URL="$1" TARGET
-	TARGET=$(where_cache "$(basename "${URL}")")
+	TARGET=$(where_cache "Download/$(basename "${URL}")")
 
 	if [[ -e "${TARGET}" ]]; then
 		echo "Download $TARGET - file exists."
@@ -26,7 +26,7 @@ function clone_repo() {
 	local URL="$1" USER REPO TARGET
 	REPO="$(basename "${URL}" .git)"
 	USER="$(basename "$(dirname "${URL/://}")")"
-	TARGET=$(where_cache "$USER/$REPO")
+	TARGET=$(where_cache "Download/$USER/$REPO")
 
 	if [[ -e "$TARGET" ]]; then
 		push_dir "$TARGET"
@@ -62,7 +62,7 @@ function checkout_repo() {
 	push_dir "$REPO"
 
 	mkdir -p "$TARGET"
-	screen_run bash -c "git archive '$BRANCH' | tar -vx -C '$TARGET'"
+	screen_run "Checkout $REPO to $TARGET" bash -c "git archive '$BRANCH' | tar -vx -C '$TARGET'"
 
 	pop_dir
 }
