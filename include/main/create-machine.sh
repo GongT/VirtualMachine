@@ -83,9 +83,9 @@ function create_bind_link() {
 		rm -rf "$LINK"
 	fi
 	echo "    ${TEXT_MUTED}create link: $LINK, point to: $TARGET.${TEXT_RESET}"
+	mkdir -p "$(dirname "$LINK")"
 	ln -s "$TARGET" "$LINK"
 }
-foreach_array ".bind.socket" create_bind_link "/mnt/socket" "/var/run"
 foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
 foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
 foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
@@ -93,6 +93,8 @@ foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
 ### create profile ###
 PROFILE="$(machine_path /etc/profile.d/environment.sh)"
 ENVFILE="$(machine_path /etc/environment)"
+echo "" > "$PROFILE"
+echo "" > "$ENVFILE"
 function generate_environments() {
 	local KEY="$2" VALUE="$1"
 	if [[ "$VALUE" = "*ask" ]]; then

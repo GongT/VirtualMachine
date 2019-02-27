@@ -7,7 +7,7 @@ if [ -z "$HTTPS_PROXY" ]; then
 	echo "proxy required"
 	exit 1
 fi
-MARIADB_RELEASE="https://downloads.mariadb.org/f/mariadb-10.3.12/bintar-linux-glibc_214-x86_64/mariadb-10.3.12-linux-glibc_214-x86_64.tar.gz"
+MARIADB_RELEASE=
 
 function prepare() {
 	vm-use-network bridge

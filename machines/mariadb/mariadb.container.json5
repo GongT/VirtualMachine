@@ -1,0 +1,55 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "mariadb",
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/var/lib/mysql"
+		}
+	],
+	bind: {
+		config: [ "my.cnf" ],
+		log: [ "mariadb" ],
+		socket: [ "mysqld" ],
+		initConfig: "etc"
+	},
+	network: {
+		type: "bridge"
+	},
+	download: [
+		{
+			type: "normal",
+			url: "https://downloads.mariadb.org/f/mariadb-10.3.12/bintar-linux-glibc_214-x86_64/mariadb-10.3.12-linux-glibc_214-x86_64.tar.gz",
+			saveTo: "/usr/local/mysql",
+			extract: true,
+			stripPath: 1
+		}
+	],
+	install: {
+		packages: [
+			"grep",
+			"libaio",
+			"numactl-libs",
+			"libstdc++",
+			"ncurses-compat-libs"
+		],
+		copyFiles: {
+			"service/prestart.sh": "/opt/scripts/prestart.sh",
+			"service/poststart.sh": "/opt/scripts/poststart.sh"
+		}
+	},
+	environment: {
+		"HTTPS_PROXY": "*pass",
+		"HTTP_PROXY": "*pass",
+		"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/local/mysql/bin",
+		"DEFAULT_PASSWORD": "*ask"
+	},
+	service: {
+		"mariadb.service": {
+			enabled: true,
+			template: "service/mariadb.service"
+		}
+	},
+	postscript: "prepare.sh"
+}

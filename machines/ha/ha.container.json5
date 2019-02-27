@@ -5,6 +5,7 @@
 	bind: {
 		config: [ "hass" ],
 		initConfig: "config",
+		configWritable: true,
 		cache: [ "npm", "Yarn" ],
 		log: [ "hass" ]
 	},

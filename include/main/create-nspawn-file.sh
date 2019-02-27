@@ -111,10 +111,14 @@ if [[ "$(query_json ".bind.log | length")" -ne 0 ]]; then
 fi
 if [[ "$(query_json ".bind.config | length")" -ne 0 ]]; then
 	mkdir -p "$(where_config)"
-	append "BindReadOnly=$(where_config):/mnt/config"
+	if [[ "$(query_json ".bind.configWritable")" = "true" ]] ; then
+		append "Bind=$(where_config):/mnt/config"
+	else
+		append "BindReadOnly=$(where_config):/mnt/config"
+	fi
 fi
 if [[ "$(query_json ".bind.socket | length")" -ne 0 ]] ; then
-	append "Bind=$(where_socket):/mnt/socket"
+	append "Bind=$(where_socket):/run/socket"
 fi
 if [[ "$(query_json ".bind.cache | length")" -ne 0 ]]; then
 	append "Bind=$(where_cache):/mnt/cache"

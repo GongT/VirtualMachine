@@ -1,0 +1,41 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "homedns",
+	unit: {
+		dependency: ["mariadb.machine.service"]
+	},
+	bind: {
+		config: [
+			"dnsmasq.conf",
+			"dnsmasq.d",
+			"hosts",
+			"pdns"
+		],
+		socket: [ "mysql" ],
+		initConfig: "etc"
+	},
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packages: [
+			"bind-utils",
+			"dnsmasq",
+			"pdns",
+			"pdns-tools",
+			"pdns-backend-mysql"
+		]
+	},
+	environment: {
+		"HTTPS_PROXY": "*pass",
+		"HTTP_PROXY": "*pass"
+	},
+	service: {
+		"dnsmasq.service": {
+			enabled: true
+		},
+		"pdns.service": {
+			enabled: true
+		}
+	}
+}

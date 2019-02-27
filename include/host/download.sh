@@ -63,6 +63,7 @@ function checkout_repo() {
 
 	mkdir -p "$TARGET"
 	screen_run "Checkout $REPO to $TARGET" bash -c "git archive '$BRANCH' | tar -vx -C '$TARGET'"
+	cp -rf ".git" "$TARGET"
 
 	pop_dir
 }

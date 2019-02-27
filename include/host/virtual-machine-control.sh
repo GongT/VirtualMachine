@@ -66,6 +66,8 @@ Description=systemd.nspawn container - $CURRENT_MACHINE
 Documentation=man:systemd-nspawn(1)
 PartOf=machines.target
 Before=machines.target
+Requires=$(echo $(query_json '.unit.dependency[]'))
+After=$(echo $(query_json '.unit.dependency[]'))
 After=network.target systemd-resolved.service systemd-networkd.service
 RequiresMountsFor=/var/lib/machines
 RequiresMountsFor=/data/Cache
@@ -76,6 +78,8 @@ WantedBy=machines.target
 
 [Service]
 Environment=MACHINE=\"$CURRENT_MACHINE\"
+ExecStartPre=/usr/bin/mkdir -p /dev/shm/MachinesSockets
+ExecStartPre=/usr/bin/chmod 0777 /dev/shm/MachinesSockets
 ExecStartPre=-/usr/bin/machinectl terminate \$MACHINE
 ExecStart=/usr/bin/systemd-nspawn --settings=trusted --machine \$MACHINE
 ExecReload=/usr/bin/systemctl --machine \$MACHINE restart dnsmasq

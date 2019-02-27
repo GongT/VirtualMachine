@@ -1,11 +1,10 @@
 #!/bin/sh
 
-set -x
 set -e
 
 mkdir -p /var/run/mysqld
 chown mysql:mysql /var/run/mysqld -R
 
-if [ ! -e /var/lib/mysql/performance_schema ]; then
+if ! [[ -e /var/lib/mysql/performance_schema ]]; then
 	/usr/local/mysql/scripts/mysql_install_db -u mysql --basedir=/usr/local/mysql
 fi

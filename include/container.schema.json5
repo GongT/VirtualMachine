@@ -3,6 +3,12 @@
 	required: [ "hostname" ],
 	properties: {
 		hostname: { type: "string" },
+		unit: {
+			type: "object",
+			properties: {
+				dependency: { type: "array", items: { type: "string" } }
+			},
+		},
 		mount: {
 			type: "array",
 			items: {
@@ -26,6 +32,7 @@
 			type: "object",
 			properties: {
 				initConfig: { type: "string" },
+				configWritable: { type: "boolean" },
 				config: { type: "array", items: { type: "string" } },
 				cache: { type: "array", items: { type: "string" } },
 				log: { type: "array", items: { type: "string" } },
