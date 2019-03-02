@@ -1,0 +1,18 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "source-code-build-environment",
+	network: {
+		type: "bridge"
+	},
+	bind: {
+		cache: [
+			"Download"
+		]
+	},
+	install: {
+		packagesFile: "common-tools.lst",
+		inject: [
+			"dnf"
+		]
+	}
+}

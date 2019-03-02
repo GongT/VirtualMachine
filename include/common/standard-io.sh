@@ -18,6 +18,8 @@ function title_stack_pop() {
 	eval "${CMD}"
 	if [[ "${#__TITLE_STACK[@]}" -eq 0 ]]; then
 		title "Untitled script"
+	else
+		title "${__TITLE_STACK[-1]}"
 	fi
 }
 
@@ -109,4 +111,24 @@ function ask() {
 	    read -p "$MSG> " readVal
 	done
 	eval "$OUT='$readVal'"
+}
+
+function handle_exit() {
+	if [[ -n "$RET_FILE" ]]; then
+		echo "handle exit code with file: $RET_FILE"
+	fi
+	# echo an error message before exiting
+	trap 'exit 130' INT
+	trap '
+RET=$?
+CMD="$BASH_COMMAND"
+if [[ -n "$RET_FILE" ]]; then
+	echo "Write exit code $RET into $RET_FILE"
+	echo "$RET" > "$RET_FILE"
+fi
+if [[ "$RET" -ne 0 ]]; then
+	echo "* the command ${TEXT_INFO}${CMD}${TEXT_RESET} has filed with exit code $RET."
+	exit "$RET"
+fi
+' EXIT
 }

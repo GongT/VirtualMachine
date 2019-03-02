@@ -1,69 +1,67 @@
 #!/usr/bin/env bash
 
-__LAST_DOWNLOAD_FILE=
-function get_last_download() {
-	echo "$__LAST_DOWNLOAD_FILE"
-}
+function __parse_download_file_info() {
+	local VAL="$1"
+	TYPE=$(echo "$VAL" | query_json_value '.type')
+	URL=$(echo "$VAL" | query_json_value '.url')
 
-function download_file() {
-	local URL="$1" TARGET
-	TARGET=$(where_cache "Download/$(basename "${URL}")")
-
-	if [[ -e "${TARGET}" ]]; then
-		echo "Download $TARGET - file exists."
-		__LAST_DOWNLOAD_FILE="$TARGET"
-		return
-	fi
-
-	mkdir -p "$(dirname "${TARGET}")"
-	screen_run "Download $URL" wget "${URL}" -c -O "${TARGET}.downloading" --quiet --show-progress --progress=bar:force:noscroll
-	mv "${TARGET}.downloading" "${TARGET}"
-
-	__LAST_DOWNLOAD_FILE="$TARGET"
-}
-
-function clone_repo() {
-	local URL="$1" USER REPO TARGET
-	REPO="$(basename "${URL}" .git)"
-	USER="$(basename "$(dirname "${URL/://}")")"
-	TARGET=$(where_cache "Download/$USER/$REPO")
-
-	if [[ -e "$TARGET" ]]; then
-		push_dir "$TARGET"
-		screen_run "Git Update" git fetch
-		pop_dir
+	if echo "$VAL" | query_json_condition ".extract" ; then
+		EXTRACT=yes
 	else
-		screen_run "Git Clone" git clone --bare "$URL" "$TARGET"
+		EXTRACT=no
 	fi
-	__LAST_DOWNLOAD_FILE="$TARGET"
+
+	SAVE_TO=$(echo "$VAL" | query_json_value '.saveTo')
+	STRIP_PATH="$(echo "$VAL" | query_json_value '.stripPath // 1')"
+
+	SAVE_TO=$(machine_path "$SAVE_TO")
+
+	BRANCH=$(echo "$VAL" | query_json_value '.branch // "master"')
 }
 
-function extract_downloaded(){
-	local STRIP="$1"
-	local BASENAME="$(basename "$__LAST_DOWNLOAD_FILE")"
-	local TARGET="$__LAST_DOWNLOAD_FILE"
+function download_inner() {
+	local TYPE URL SAVE_TO STRIP_PATH EXTRACT CACHE_FILE BRANCH
+	__parse_download_file_info "$1"
 
-	case "$BASENAME" in
-	*.tar.gz|*.tar.xz|*.tar.bz2)
-		TARGET="${TARGET%.tar.gz}"
-		TARGET="${TARGET%.tar.xz}"
-		TARGET="${TARGET%.tar.bz2}"
-		extract_tar "$__LAST_DOWNLOAD_FILE" "$TARGET" "$STRIP"
+	echo "Downloading file:"
+	echo "type=$TYPE"
+	echo "url=$URL"
+	echo "save_to=$SAVE_TO"
+	echo "strip_path=$STRIP_PATH"
+	echo "extract=$EXTRACT"
+	echo "branch=$BRANCH"
+	echo ""
+	echo ""
+
+	case "$TYPE" in
+	normal)
+		CACHE_FILE=$(where_cache "Download/$(basename "${URL}")")
+		simple_download_file "$URL" "$CACHE_FILE"
+		if [[ "$EXTRACT" = "yes" ]] ; then
+			extract_downloaded "$CACHE_FILE" "$SAVE_TO" "$STRIP_PATH"
+		else
+			copy_downloaded "$CACHE_FILE" "$SAVE_TO"
+		fi
 	;;
-	default)
-		die "Unknown zip format: $BASENAME"
+	github-release)
+		CACHE_FILE=$(where_cache "Download/${URL////-}.tar.gz")
+		download_github_release "$URL" "$CACHE_FILE"
+		extract_downloaded "$CACHE_FILE" "$SAVE_TO" "$STRIP_PATH"
+	;;
+	github)
+		URL="https://github.com/${URL}.git"
+	;&
+	git)
+		CACHE_FILE=$(where_cache "Download/$(get_repo_name_from_url "$URL")")
+		clone_repo "$URL" "$CACHE_FILE"
+		checkout_repo "$BRANCH" "$CACHE_FILE" "$SAVE_TO"
+	;;
+	*)
+		die "Unknown download type: $VAL"
 	esac
-
-	__LAST_DOWNLOAD_FILE="$TARGET"
+	echo "Complete Download: $SAVE_TO."
 }
 
-function checkout_repo() {
-	local BRANCH="${1-master}" REPO="$2" TARGET="$3"
-	push_dir "$REPO"
-
-	mkdir -p "$TARGET"
-	screen_run "Checkout $REPO to $TARGET" bash -c "git archive '$BRANCH' | tar -vx -C '$TARGET'"
-	cp -rf ".git" "$TARGET"
-
-	pop_dir
+function run_download() {
+	screen_run "Download file $2" download_inner "$1"
 }

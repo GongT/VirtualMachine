@@ -4,7 +4,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )"
 source ../include.sh
 
 function append() {
-	echo "${TEXT_MUTED}          $*${TEXT_RESET}" >&2
+	# echo "${TEXT_MUTED}          $*${TEXT_RESET}" >&2
 	echo "$@" >> "$NSPAWN"
 }
 
@@ -31,7 +31,7 @@ function generate_mounts() {
 		return
 	fi
 
-	if echo "$VALUE" | query_json_condition '.options | contains(["readonly"])' >/dev/null ; then
+	if echo "$VALUE" | query_json_condition '.options | contains(["readonly"])' ; then
 		LINE="BindReadOnly="
 	else
 		LINE="Bind="
@@ -68,9 +68,8 @@ function generate_network() {
 	hostonly)
 		append "Private=yes"
 		append "VirtualEthernet=yes"
-		append "VirtualEthernetExtra=vm-$MACHINE_TO_INSTALL:hostonly"
+		append "VirtualEthernetExtra=vm-$CURRENT_MACHINE:hostonly"
 		append "Zone=hostonly"
-		chroot_systemctl_enable systemd-networkd systemd-resolved
 	;;
 	bridge)
 		local BR_NAME
@@ -80,13 +79,13 @@ function generate_network() {
 		fi
 		append "Private=yes"
 		append "Bridge=$BR_NAME"
-		chroot_systemctl_enable systemd-networkd systemd-resolved
 	;;
 	*)
 		die "Unknown networking type: $NETWORK_TYPE"
 	esac
 }
 
+require_within
 
 NSPAWN="$(machine_path /).nspawn"
 echo "[Exec]

@@ -24,7 +24,7 @@ function init_service() {
 	ENABLED_TYPE="$(echo "$VAL" | query_json_value '.enabled | type')"
 	case "$ENABLED_TYPE" in
 	boolean)
-		if echo "$VAL" | query_json_condition '.enabled' >/dev/null ; then
+		if echo "$VAL" | query_json_condition '.enabled' ; then
 			chroot_systemctl_enable "$NAME"
 		else
 			chroot_systemctl_disable "$NAME"
@@ -43,7 +43,7 @@ function init_service() {
 	esac
 }
 
-within_machine "$MACHINE_TO_INSTALL"
+require_within
 
 foreach_object '.service' init_service
 
@@ -79,5 +79,3 @@ WantedBy=multi-user.target
 	copy_service "$TMP_FILE" "first-boot.service"
 	chroot_systemctl_enable "first-boot.service"
 fi
-
-end_within

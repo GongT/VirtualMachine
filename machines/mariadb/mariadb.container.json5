@@ -9,7 +9,7 @@
 		}
 	],
 	bind: {
-		config: [ "my.cnf" ],
+		config: [ "my.cnf.d" ],
 		log: [ "mariadb" ],
 		socket: [ "mysqld" ],
 		initConfig: "etc"
@@ -18,21 +18,13 @@
 		type: "bridge"
 	},
 	download: [
-		{
-			type: "normal",
-			url: "https://downloads.mariadb.org/f/mariadb-10.3.12/bintar-linux-glibc_214-x86_64/mariadb-10.3.12-linux-glibc_214-x86_64.tar.gz",
-			saveTo: "/usr/local/mysql",
-			extract: true,
-			stripPath: 1
-		}
 	],
 	install: {
 		packages: [
-			"grep",
-			"libaio",
-			"numactl-libs",
-			"libstdc++",
-			"ncurses-compat-libs"
+			"mariadb",
+			"mariadb-server",
+			"mariadb-server-utils",
+			"mariadb-backup"
 		],
 		copyFiles: {
 			"service/prestart.sh": "/opt/scripts/prestart.sh",
@@ -48,7 +40,7 @@
 	service: {
 		"mariadb.service": {
 			enabled: true,
-			template: "service/mariadb.service"
+			overwrite: "service/override.service"
 		}
 	},
 	postscript: "prepare.sh"

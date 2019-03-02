@@ -11,7 +11,7 @@ function ensure_booted() {
 }
 
 function boot() {
-	echo "Booting up machine..." >&2
+	echo "Booting up machine: $CURRENT_MACHINE..." >&2
 	set_machine_service_timeout 10m
 	systemctl --quiet start "$CURRENT_MACHINE.machine.service" || {
 		systemctl stop "$CURRENT_MACHINE.machine.service"
@@ -22,7 +22,7 @@ function boot() {
 		systemctl stop "$CURRENT_MACHINE.machine.service"
 		die "Failed to boot machine."
 	fi
-	set_machine_service_timeout 60s
+	unset_machine_service_timeout
 }
 
 function shutdown() {
@@ -55,6 +55,13 @@ TimeoutStartSec=$1
 " > "$SERVICE_FILE_OVERRIDE"
 	systemctl daemon-reload
 }
+
+function unset_machine_service_timeout() {
+	local SERVICE_FILE_OVERRIDE="/usr/lib/systemd/system/${CURRENT_MACHINE}.machine.service.d/timeout.conf"
+	rm -f "$SERVICE_FILE_OVERRIDE"
+	systemctl daemon-reload
+}
+
 function create_machine_service() {
 	require_within
 

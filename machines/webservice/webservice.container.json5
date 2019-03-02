@@ -1,0 +1,201 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "webservice",
+	unit: {
+		dependency: [
+			"mariadb.machine.service",
+			"systemd-resolved.service"
+		]
+	},
+	mount: [
+		{
+			type: "source",
+			host: ".",
+			destination: "/data/DevelopmentRoot"
+		},
+		{
+			type: "share",
+			host: "letsencrypt",
+			destination: "/etc/letsencrypt"
+		},
+		{
+			type: "volume",
+			host: ".",
+			destination: "/drives"
+		}
+	],
+	bind: {
+		log: [
+			"nginx",
+			"php-fpm",
+			"nextcloud"
+		],
+		cache: [
+			"php"
+		],
+		config: [
+			"nginx",
+			"pear",
+			"php-fpm.d",
+			"php.d",
+			"sysconfig",
+			"pear.conf",
+			"php.ini",
+			"php-fpm.conf",
+			"sysconfig/memcached",
+			"poweradmin",
+			"redis.conf"
+		],
+		socket: [
+			"mysqld",
+			"php-fpm"
+		],
+		initConfig: "install/config"
+	},
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packagesFile: "install/packages.lst"
+	},
+	download: [
+		{
+			type: "normal",
+			url: "https://files.phpmyadmin.net/phpMyAdmin/4.8.5/phpMyAdmin-4.8.5-all-languages.tar.xz",
+			saveTo: "/opt/phpMyAdmin/working",
+			extract: true,
+			stripPath: 1
+		},
+		{
+			type: "normal",
+			url: "https://files.phpmyadmin.net/phpMyAdmin/4.8.5/phpMyAdmin-4.8.5-all-languages.tar.xz",
+			saveTo: "/opt/phpMyAdmin/setuptool",
+			extract: true,
+			stripPath: 1
+		},
+		{
+			type: "normal",
+			url: "https://download.nextcloud.com/server/releases/nextcloud-15.0.5.tar.bz2",
+			saveTo: "/opt/nextcloud",
+			extract: true,
+			stripPath: 1
+		},
+		{
+			type: "github",
+			url: "poweradmin/poweradmin",
+			saveTo: "/opt/poweradmin"
+		}
+	],
+	compile: {
+		requirements: { packagesFile: "compile/dependencies.lst" },
+		projects: [
+			{
+				title: "nginx",
+				script: "compile/build-nginx.sh",
+				artifact: "/opt/nginx/usr/sbin/nginx",
+				saveAt: "/usr/sbin",
+				download: [
+					{
+						type: "github",
+						url: "nginx/nginx",
+						saveTo: "/opt/source/nginx/core"
+					},
+					{
+						type: "github",
+						url: "nginx/njs",
+						saveTo: "/opt/source/nginx/special-modules/njs"
+					},
+					{
+						type: "github-release",
+						url: "arut/nginx-rtmp-module",
+						saveTo: "/opt/source/nginx/modules/nginx-rtmp-module"
+					},
+					{
+						type: "github",
+						url: "openresty/memc-nginx-module",
+						saveTo: "/opt/source/nginx/modules/memc-nginx-module"
+					},
+					{
+						type: "github",
+						url: "FRiCKLE/ngx_cache_purge",
+						saveTo: "/opt/source/nginx/modules/ngx_cache_purge"
+					},
+					{
+						type: "normal",
+						url: "https://github.com/apache/incubator-pagespeed-ngx/archive/latest-stable.tar.gz",
+						saveTo: "/opt/source/nginx/modules/incubator-pagespeed-ngx",
+						extract: true,
+						stripPath: 1
+					},
+					{
+						type: "github",
+						url: "openresty/echo-nginx-module",
+						saveTo: "/opt/source/nginx/modules/echo-nginx-module"
+					},
+					{
+						type: "github",
+						url: "openresty/headers-more-nginx-module",
+						saveTo: "/opt/source/nginx/modules/headers-more-nginx-module"
+					},
+					{
+						type: "github",
+						url: "openresty/lua-nginx-module",
+						saveTo: "/opt/source/nginx/modules/lua-nginx-module"
+					},
+					{
+						type: "github",
+						url: "openresty/stream-lua-nginx-module",
+						saveTo: "/opt/source/nginx/modules/stream-lua-nginx-module"
+					},
+					{
+						type: "github",
+						url: "simplresty/ngx_devel_kit",
+						saveTo: "/opt/source/nginx/modules/ngx_devel_kit"
+					}
+				]
+			},
+			{
+				title: "php-systemd-module",
+				artifact: "/opt/php/modules",
+				saveAt: "/usr/lib64/php/modules",
+				script: "compile/build-php-module.sh",
+				download: [
+					{
+						type: "github",
+						url: "systemd/php-systemd",
+						saveTo: "/opt/source/php/modules/php-systemd"
+					}
+				]
+			}
+		]
+	},
+	service: {
+		"nginx.service": {
+			enabled: true,
+			template: "service/nginx.service"
+		},
+		"memcached@.service": {
+			enabled: [
+				"11211",
+				"11212",
+				"11213"
+			],
+			template: "service/memcached@.service"
+		},
+		"redis@.service": {
+			enabled: [ "php_session", "cache" ],
+			template: "service/redis@.service"
+		},
+		"crond.service": {
+			enabled: true
+		},
+		"php-fpm.service": {
+			enabled: true
+		}
+	},
+	environment: {
+		"PASSWORD": "*ask"
+	},
+	postscript: "scripts/post-install.sh",
+	prestart: "scripts/pre-start.sh"
+}

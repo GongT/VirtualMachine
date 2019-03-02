@@ -1,0 +1,11 @@
+[Service]
+EnvironmentFile=/etc/environment
+OOMScoreAdjust=-600
+ExecStartPre=+/bin/bash /opt/scripts/prestart.sh
+ExecStartPost=+/bin/bash /opt/scripts/poststart.sh
+Environment="TZ=Asia/Shanghai"
+LimitNOFILE=16364
+
+# [Unit]
+# OnFailure=poweroff.target
+# OnFailureJobMode=replace-irreversibly

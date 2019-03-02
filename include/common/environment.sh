@@ -4,16 +4,17 @@ function is_inside_namespace() {
 	[[ "$(systemd-detect-virt)" = "systemd-nspawn" ]]
 }
 
+export MACHINE_STACK=()
 function within_machine() {
 	if [[ -z "$1" ]]; then
 		die "invalid machine name: (empty)"
 	fi
-	if ! echo "$1" | grep -qiE "^[a-z0-9]+$" ; then
+	if ! echo "$1" | grep -q -iE -- '^[a-z0-9_-]+$' ; then
 		die "invalid machine name: $1"
 	fi
 	echo "Using virtual machine: ${TEXT_INFO}${1}${TEXT_RESET}"
-	inside_within && die "Control flow error: machine is already set."
 	export CURRENT_MACHINE="$1"
+	export MACHINE_STACK+=("$1")
 
 	title_stack_push "Initializing machine $CURRENT_MACHINE..."
 }
@@ -23,7 +24,16 @@ function end_within() {
 	if is_inside_namespace ; then
 		die "Cannot end_within when run as nspawn process"
 	fi
-	export CURRENT_MACHINE=""
+	title_stack_pop
+
+	local CMD="unset MACHINE_STACK[-1]"
+	eval "${CMD}"
+	if [[ "${#__TITLE_STACK[@]}" -eq 0 ]]; then
+		export CURRENT_MACHINE=""
+	else
+		export CURRENT_MACHINE="${MACHINE_STACK[-1]}"
+	fi
+	echo "\n"
 }
 
 function inside_within() {
@@ -51,7 +61,7 @@ function path_exists() {
 
 function where_share() {
 	require_within
-	realpath --no-symlinks -m "/data/AppData/share/$CURRENT_MACHINE/$1"
+	realpath --no-symlinks -m "/data/AppData/share/$1"
 }
 
 function where_share_from() {
@@ -89,11 +99,19 @@ function where_cache() {
 	realpath --no-symlinks -m "/data/Cache/$1"
 }
 
+function clear_install_logs() {
+	rm -f /tmp/init-machines/*.log
+}
+function clear_machine_install_logs() {
+	require_within
+	rm -f "$(machine_path "/tmp/init-log")"/*.log
+}
+
 function init_log_file(){
 	local TARGET
 	local TS="$(date +%F.%H.%M.%S).${RANDOM}"
 	if inside_within ; then
-		TARGET="$(machine_path "/tmp/$1.${TS}.log")"
+		TARGET="$(machine_path "/tmp/init-log/$1.${TS}.log")"
 	else
 		TARGET="/tmp/init-machines/$1.${TS}.log"
 	fi

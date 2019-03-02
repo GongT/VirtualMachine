@@ -3,10 +3,10 @@
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 source ../include.sh
 
-echo -e "Initialize virtual machine ${TEXT_INFO}$MACHINE_TO_INSTALL${TEXT_RESET} with script:\n    ${TEXT_MUTED}$MACHINE_DEFINE_FILE${TEXT_RESET}"
+require_within
+echo -e "Initialize virtual machine ${TEXT_INFO}$CURRENT_MACHINE${TEXT_RESET} with script:\n    ${TEXT_MUTED}$MACHINE_DEFINE_FILE${TEXT_RESET}"
 
 ### init variables (json) ###
-within_machine "$MACHINE_TO_INSTALL"
 create_machine_json "$MACHINE_DEFINE_FILE"
 shutdown
 
@@ -17,7 +17,8 @@ if [[ -e "$TESTING_PATH" ]] ; then
 	echo "  - Already exists"
 else
 	echo "  - Base environment missing, installing..."
-	run_dnf install systemd bash
+	run_dnf install systemd bash fedora-release
+	chroot_systemctl_enable systemd-networkd systemd-resolved
 fi
 
 ### system configure ###
@@ -31,7 +32,7 @@ query_json '.hostname' > "$(machine_path /etc/hostname)"
 echo "  - /etc/hostname"
 
 ### create .nspawn file ###
-source_main create-nspawn-file.sh "$MACHINE_TO_INSTALL"
+source_main create-nspawn-file.sh "$CURRENT_MACHINE"
 echo "  - Created nspawn file."
 
 ### dnf install packages ###
@@ -82,23 +83,33 @@ function create_bind_link() {
 	if [[ -e "$LINK" ]] ; then
 		rm -rf "$LINK"
 	fi
-	echo "    ${TEXT_MUTED}create link: $LINK, point to: $TARGET.${TEXT_RESET}"
+	echo "create link: $LINK, point to: $TARGET."
 	mkdir -p "$(dirname "$LINK")"
 	ln -s "$TARGET" "$LINK"
 }
-foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
-foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
-foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
+
+function run_them() {
+	foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
+	foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
+	foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
+}
+screen_run "Create links" run_them
 
 ### create profile ###
 PROFILE="$(machine_path /etc/profile.d/environment.sh)"
 ENVFILE="$(machine_path /etc/environment)"
+OLD_ENV=$([[ -e "$ENVFILE" ]] && cat "$ENVFILE")
 echo "" > "$PROFILE"
 echo "" > "$ENVFILE"
 function generate_environments() {
 	local KEY="$2" VALUE="$1"
 	if [[ "$VALUE" = "*ask" ]]; then
-		ask "Please input value of $KEY" VALUE
+		PREV_VALUE=$(echo "$OLD_ENV" | grep -E -- "^$KEY=" || true)
+		if [[ -n "$PREV_VALUE" ]]; then
+			VALUE="${PREV_VALUE#*=}"
+		else
+			ask "Please input value of $KEY" VALUE
+		fi
 	elif [[ "$VALUE" = "*pass" ]]; then
 		if [[ -z "${!KEY}" ]]; then
 			die "Requiring environment variable: ${KEY}. which is missing."
@@ -115,5 +126,6 @@ echo "" > "$ENVFILE"
 foreach_object ".environment" generate_environments
 echo "  - Created environment file."
 
+create_machine_service
+
 ### finished ###
-end_within

@@ -1,0 +1,26 @@
+[Unit]
+Description=Redis persistent key-value database listen at %I
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=SOCKET=/run/redis/%I/redis.sock
+Environment=PID=/run/redis/%I/redis.pid
+ExecStart=/usr/bin/redis-server \
+							/etc/redis.conf \
+							--pidfile $PID \
+							--unixsocket $SOCKET \
+							 --dir /var/lib/redis/%I \
+							 --supervised systemd
+ExecStop=/usr/bin/redis-cli -s $SOCKET shutdown
+Type=notify
+User=redis
+Group=redis
+RuntimeDirectory=redis/%I
+RuntimeDirectoryMode=0755
+LimitNOFILE=1024
+StateDirectory=redis/%I
+
+[Install]
+WantedBy=multi-user.target

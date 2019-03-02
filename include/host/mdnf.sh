@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-__TEMP_DNF_RUN=()
-
 function run_dnf_server() {
+	local __TEMP_DNF_RUN=() CACHE_DIR
 	machine_path | path_exists || die "Machine did not exists."
 
 	push_dir "$(machine_path)"
@@ -13,6 +12,7 @@ function run_dnf_server() {
 }
 
 function run_dnf_client() {
+	local __TEMP_DNF_RUN=() CACHE_DIR
 	machine_path | path_exists || die "Machine did not exists."
 
 	push_dir "$(machine_path)"
@@ -24,7 +24,6 @@ function run_dnf_client() {
 
 function mdnf_cache_dir() {
 	CACHE_DIR=$(realpath --no-symlinks -m --relative-to "${1-$(pwd)}" /var/cache/dnf)
-	export CACHE_DIR
 }
 
 function create_mdnf_run_args() {
@@ -43,6 +42,7 @@ function create_mdnf_run_args() {
 			"--installroot=$(machine_path)" \
 			"$@"
 		)
+	unset CACHE_DIR
 }
 
 function run_dnf() {

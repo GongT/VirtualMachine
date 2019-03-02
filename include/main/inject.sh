@@ -6,6 +6,7 @@ source ../include.sh
 ACTION="$1"
 
 function create_mdnf_client() {
+	local __TEMP_DNF_RUN=()
 	prepare_ssh_client
 	mdnf_cache_dir "$HOME"
 	create_mdnf_run_args

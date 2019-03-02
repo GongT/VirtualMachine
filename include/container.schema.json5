@@ -1,18 +1,89 @@
 {
 	$schema: "http://json-schema.org/draft-07/schema",
 	required: [ "hostname" ],
+	additionalProperties: false,
+	definitions: {
+		stringMap: {
+			type: "object",
+			additionalProperties: { type: "string" }
+		},
+		stringArray: {
+			type: "array",
+			items: { type: "string" }
+		},
+		download: {
+			type: "object",
+			oneOf: [
+				{
+					additionalProperties: false,
+					required: [ "type", "url", "saveTo" ],
+					properties: {
+						type: { type: "string", enum: [ "git", "github" ] },
+						url: { type: "string" }, saveTo: { type: "string" },
+						branch: { type: "string" }
+					}
+				},
+				{
+					additionalProperties: false,
+					required: [ "url", "saveTo", "extract" ],
+					properties: {
+						type: { type: "string", enum: [ "normal" ] },
+						url: { type: "string" }, saveTo: { type: "string" },
+						extract: { type: "boolean" }, stripPath: { type: "number" }
+					}
+				},
+				{
+					additionalProperties: false,
+					required: [ "type", "url", "saveTo" ],
+					properties: {
+						type: { type: "string", enum: [ "github-release" ] },
+						url: { type: "string" }, saveTo: { type: "string" },
+						stripPath: { type: "number" }
+					}
+				}
+			]
+		},
+		downloads: {
+			type: "array",
+			items: { $ref: "#/definitions/download" }
+		},
+		requirements: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				packages: { $ref: "#/definitions/stringArray" },
+				packagesFile: { type: "string" }
+			}
+		},
+		compileInstructions: {
+			type: "object",
+			additionalProperties: false,
+			required: [ "title", "artifact", "script" ],
+			properties: {
+				title: { type: "string" },
+				download: { $ret: "#/definitions/downloads" },
+				artifact: { type: "string" },
+				saveAt: { type: "string" },
+				script: { type: "string" }
+			}
+		}
+	},
 	properties: {
+		$schema: { type: "string" },
+		$id: { type: "string" },
 		hostname: { type: "string" },
 		unit: {
 			type: "object",
+			additionalProperties: false,
 			properties: {
-				dependency: { type: "array", items: { type: "string" } }
-			},
+				dependency: { $ref: "#/definitions/stringArray" }
+			}
 		},
 		mount: {
 			type: "array",
 			items: {
 				type: "object",
+				additionalProperties: false,
 				required: [ "type", "host", "destination" ],
 				properties: {
 					type: {
@@ -30,17 +101,19 @@
 		},
 		bind: {
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				initConfig: { type: "string" },
 				configWritable: { type: "boolean" },
-				config: { type: "array", items: { type: "string" } },
-				cache: { type: "array", items: { type: "string" } },
-				log: { type: "array", items: { type: "string" } },
-				socket: { type: "array", items: { type: "string" } }
+				config: { $ref: "#/definitions/stringArray" },
+				cache: { $ref: "#/definitions/stringArray" },
+				log: { $ref: "#/definitions/stringArray" },
+				socket: { $ref: "#/definitions/stringArray" }
 			}
 		},
 		network: {
 			type: "object",
+			additionalProperties: false,
 			properties: {
 				type: {
 					type: "string",
@@ -52,26 +125,26 @@
 			}
 		},
 		install: {
+			type: "object",
+			additionalItems: false,
 			properties: {
-				packages: { type: "array", items: { type: "string" } },
-				packagesFile: { type: "string" },
-				copyFiles: {
-					type: "object",
-					additionalProperties: { type: "string" }
-				},
+				copyFiles: { $ref: "#/definitions/stringMap" },
 				inject: {
 					type: "array",
 					items: {
 						type: "string",
 						enum: [ "dnf", "ssh-keys" ]
 					}
-				}
+				},
+				packages: { $ref: "#/definitions/stringArray" },
+				packagesFile: { type: "string" }
 			}
 		},
 		service: {
 			type: "object",
 			additionalProperties: {
 				type: "object",
+				additionalProperties: false,
 				required: [ "enabled" ],
 				properties: {
 					enabled: {
@@ -83,56 +156,19 @@
 				}
 			}
 		},
-		download: {
-			type: "array",
-			items: {
-				type: "object",
-				oneOf: [
-					{
-						required: [ "type", "url", "saveTo" ],
-						properties: {
-							type: { type: "string", enum: [ "git", "github" ] },
-							url: { type: "string" },
-							saveTo: { type: "string" },
-							branch: { type: "string" }
-						}
-					},
-					{
-						required: [ "url", "saveTo", "extract" ],
-						properties: {
-							type: { type: "string", enum: [ "normal" ] },
-							url: { type: "string" },
-							saveTo: { type: "string" },
-							extract: { type: "boolean" },
-							stripPath: { type: "number" }
-						}
-					}
-				]
-			}
-		},
+		download: { $ref: "#/definitions/downloads" },
 		compile: {
-			type: "array",
-			items: {
-				type: "object",
-				required: [ "title", "script", "artifacts" ],
-				properties: {
-					title: { type: "string" },
-					script: { type: "string" },
-					artifacts: { type: "string" },
-					requirements: {
-						type: "object",
-						properties: {
-							packages: { type: "array", items: { type: "string" } },
-							packagesFile: { type: "string" }
-						}
-					}
+			type: "object",
+			properties: {
+				requirements: { $ref: "#/definitions/requirements" },
+				projects: {
+					type: "array",
+					items: { $ref: "#/definitions/compileInstructions" }
 				}
 			}
 		},
-		environment: {
-			type: "object",
-			additionalProperties: { type: "string" }
-		},
+		environment: { $ref: "#/definitions/stringMap" },
+		prestart: { type: "string" },
 		postscript: { type: "string" }
 	}
 }

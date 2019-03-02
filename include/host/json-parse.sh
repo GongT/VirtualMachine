@@ -6,24 +6,28 @@ function create_machine_json() {
 	TARGET=$(machine_path container.json)
 	mkdir -p "$(dirname "${TARGET}")"
 
-	echo "Parsing container json: ${MACHINE_DEFINE}." >&2
-	node --experimental-modules \
-		"${SCRIPT_INCLUDE_ROOT}/parse-validate-json.mjs" \
-		"${MACHINE_DEFINE}" \
-		"${TARGET}"
-	echo "    save to: ${TARGET}." >&2
+	echo "Parsing container json..."
+	npx --quiet json5 -o "${TARGET}" -s t "${MACHINE_DEFINE}"
+	npx --quiet json5 -o "/tmp/validate.schema.json" -s t "$SCRIPT_INCLUDE_ROOT/container.schema.json5"
+	echo "    save to: ${TARGET}."
+	npx --quiet ajv-cli -s "/tmp/validate.schema.json" -d "${TARGET}" >/dev/null
+	echo "    schema check complete."
 }
 
 function query_json() {
 	local TARGET="$(machine_path container.json)"
 	cat "${TARGET}" | query_json_value "$*"
 }
+function query_condition() {
+	local TARGET="$(machine_path container.json)"
+	cat "${TARGET}" | query_json_condition "$*"
+}
 
 function query_json_value() {
 	jq -M -r -c "try $1"
 }
 function query_json_condition() {
-	jq -M -r -c -e "try $1"
+	jq -M -r -c -e "try $1" >/dev/null
 }
 
 function foreach_array() {
