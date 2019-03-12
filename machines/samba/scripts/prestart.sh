@@ -73,7 +73,7 @@ echo "[global]
 	workgroup = WORKGROUP
 	server string = shabao's SAMBA share server
 	netbios name = $(< /etc/hostname)
-	interfaces = lo host0
+	interfaces = ${INTERFACE_LIST-lo}
 	security = user
 	map archive = no
 	map hidden = no

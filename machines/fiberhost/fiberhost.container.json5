@@ -1,6 +1,10 @@
 {
 	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
-	hostname: "shabao-share",
+	hostname: "fiber-host",
+	bind: {
+		config: [ "systemd/network", "tgt" ],
+		initConfig: "config"
+	},
 	mount: [
 		{
 			type: "source",
@@ -24,7 +28,8 @@
 		}
 	],
 	network: {
-		type: "bridge"
+		type: "interface",
+		interface: "enp131s0"
 	},
 	install: {
 		packages: [
@@ -32,7 +37,8 @@
 			"samba-dc",
 			"samba-common-tools",
 			"samba-winbind",
-			"passwd"
+			"passwd",
+			"scsi-target-utils"
 		],
 		copyFiles: {
 			"scripts": "/opt"
@@ -44,13 +50,21 @@
 			overwrite: "service/flush-config.service"
 		},
 		"nmb": {
+			enabled: false
+		},
+		"tgtd": {
 			enabled: true
 		}
 	},
+	capability: [ "CAP_SYS_ADMIN", ",CAP_SYS_RAWIO", "CAP_SYS_MODULE" ],
 	environment: {
 		PASSWORD: "*ask",
-		INTERFACE_LIST: "lo host0"
+		INTERFACE_LIST: "enp131s0"
 	},
-	download: [ ],
-	postscript: "scripts/create-user.sh"
+	postscript: "scripts/create-user.sh",
+	specialConfig: {
+		dynamicBlockDevice: [
+			"/dev/scsi/game"
+		]
+	}
 }

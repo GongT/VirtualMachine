@@ -52,7 +52,7 @@ if ! is_null_or_empty "$INIT_SCRIPT" ; then
 	echo "Copy first-boot script into machine..."
 	SCRIPT="/opt/scripts/$(basename "$INIT_SCRIPT")"
 	mkdir -p "$(dirname "$(machine_path "$SCRIPT")")"
-	cp -v "$(where_host "$INIT_SCRIPT")" "$(machine_path "$SCRIPT")"
+	cp -v -L "$(where_host "$INIT_SCRIPT")" "$(machine_path "$SCRIPT")"
 
 	TMP_FILE="/tmp/created-init-script-${RANDOM}.service"
 	echo "

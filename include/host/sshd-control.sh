@@ -16,7 +16,7 @@ function prepare_ssh_client() {
 	fi
 
 	mkdir -p "$(dirname "$TARGET_RSA_FILE")"
-	cp -fv "${KEY_FILE}" "$TARGET_RSA_FILE"
+	cp -fv -L "${KEY_FILE}" "$TARGET_RSA_FILE"
 
 	run_dnf_server install openssh-clients
 }

@@ -117,9 +117,9 @@
 			properties: {
 				type: {
 					type: "string",
-					enum: [ "disable", "hostonly", "bridge" ]
+					enum: [ "disable", "hostonly", "bridge", "interface" ]
 				},
-				br: {
+				interface: {
 					type: "string"
 				}
 			}
@@ -167,8 +167,16 @@
 				}
 			}
 		},
+		capability: { type: "array", items: { type: "string" } },
 		environment: { $ref: "#/definitions/stringMap" },
 		prestart: { type: "string" },
-		postscript: { type: "string" }
+		postscript: { type: "string" },
+		specialConfig: {
+			type: "object",
+			additionalProperties: false,
+			properties: {
+				dynamicBlockDevice: { type: "array", items: { type: "string" } }
+			}
+		}
 	}
 }

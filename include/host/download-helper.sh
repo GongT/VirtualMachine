@@ -5,6 +5,6 @@ function copy_downloaded() {
 	local CP_LOG
 
 	echo "Copy download result..."
-	CP_LOG="$(cp -rvf "$DOWNLOADED_FILE" "$SAVE_TO")"
+	CP_LOG="$(cp -rvf -L "$DOWNLOADED_FILE" "$SAVE_TO")"
 	echo "    Copy finished, $(echo "$CP_LOG" | wc -l) files."
 }

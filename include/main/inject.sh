@@ -26,7 +26,7 @@ function create_mdnf_client() {
 
 function copy_ssh_keys() {
 	echo "$TEXT_MUTED"
-	cp -rfv ~/.ssh "$(machine_path /root)"
+	cp -rfv -L ~/.ssh "$(machine_path /root)"
 	echo "$TEXT_RESET"
 }
 

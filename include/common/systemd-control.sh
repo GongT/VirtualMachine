@@ -10,7 +10,7 @@ function chroot_systemctl_enable() {
 function chroot_systemctl_disable() {
 	require_within
 	echo "Disabling service: $*...${TEXT_MUTED}"
-	chroot "$(machine_path)" systemctl enable "$@"
+	chroot "$(machine_path)" systemctl disable "$@"
 	echo -n "${TEXT_RESET}"
 }
 
@@ -19,7 +19,7 @@ function copy_service() {
 	TARGET="$(machine_path "/usr/lib/systemd/system/$NAME")"
 
 	echo "copy service file: ${TEXT_MUTED}$FILE${TEXT_RESET}"
-	cp "$FILE" "$TARGET"
+	cp -L "$FILE" "$TARGET"
 }
 
 function copy_service_override() {
@@ -28,5 +28,5 @@ function copy_service_override() {
 
 	echo "copy service override file: ${TEXT_MUTED}$FILE${TEXT_RESET}"
 	mkdir -p "$(dirname "$TARGET")"
-	cp "$FILE" "$TARGET"
+	cp -L "$FILE" "$TARGET"
 }

@@ -71,9 +71,18 @@ function generate_network() {
 		append "VirtualEthernetExtra=vm-$CURRENT_MACHINE:hostonly"
 		append "Zone=hostonly"
 	;;
+	interface)
+		local IF_NAME
+		IF_NAME=$(query_json '.network.interface')
+		if is_null_or_empty "$IF_NAME" ; then
+			die "Must set interface name"
+		fi
+		append "Private=yes"
+		append "Interface=$IF_NAME"
+	;;
 	bridge)
 		local BR_NAME
-		BR_NAME=$(query_json '.network.br')
+		BR_NAME=$(query_json '.network.interface')
 		if is_null_or_empty "$BR_NAME" ; then
 			BR_NAME="bridge0"
 		fi
@@ -96,6 +105,13 @@ Environment=LANG=en_US.UTF-8
 Environment=DISPLAY=:0
 NotifyReady=yes
 " > "$NSPAWN"
+
+
+function generate_capability() {
+	local CAPABILITY="$1"
+	append "Capability=$CAPABILITY"
+}
+foreach_array ".capability" generate_capability
 
 echo "      * network"
 generate_network

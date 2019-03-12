@@ -30,6 +30,7 @@ clear_install_logs
 clear_machine_install_logs
 
 run_main "create-machine.sh"
+run_main "create-special.sh"
 run_main "download-requires.sh"
 run_main "run-compile.sh"
 run_main "enable-service.sh"

@@ -56,7 +56,7 @@ fi
 BUILD_SCRIPT_ROOT="$(machine_path "/opt/scripts/build")"
 mkdir -p "$BUILD_SCRIPT_ROOT"
 
-cp -rf "$SCRIPT_INCLUDE_ROOT/include.sh" "$SCRIPT_INCLUDE_ROOT/common" "$BUILD_SCRIPT_ROOT"
+cp -rf -L "$SCRIPT_INCLUDE_ROOT/include.sh" "$SCRIPT_INCLUDE_ROOT/common" "$BUILD_SCRIPT_ROOT"
 ENTRY_FILE_INNER="/opt/scripts/build/entry.sh"
 ENTRY_FILE=$(machine_path "$ENTRY_FILE_INNER")
 mkdir -p "$(dirname "$ENTRY_FILE")"
@@ -79,7 +79,7 @@ function run_compile() {
 	local TITLE=$1 SCRIPT=$2 TARGET_SCRIPT
 	TARGET_SCRIPT=$(machine_path "/opt/scripts/build/main/build-$TITLE.sh")
 	mkdir -p "$(dirname "$TARGET_SCRIPT")"
-	cp -f "$SCRIPT" "$TARGET_SCRIPT"
+	cp -f -L "$SCRIPT" "$TARGET_SCRIPT"
 
 	local RET_FILE="/var/$(date +%F.%H.%M.%S).${RANDOM}"
 	machinectl shell \
@@ -121,7 +121,7 @@ for JSON in "${COMPILE_LIST[@]}" ; do
 	screen_run "Compiling project $TITLE" run_compile "$TITLE" "$SCRIPT"
 
 	mkdir -p "$(dirname "$SAVE_AT")"
-	CP_LOG=$(cp -Tvrf "$ARTIFACT" "$SAVE_AT")
+	CP_LOG=$(cp -Tvrf -L "$ARTIFACT" "$SAVE_AT")
 	echo "  - Copy $(echo "$CP_LOG" | wc -l) files to target machine."
 done
 

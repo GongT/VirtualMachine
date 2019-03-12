@@ -22,7 +22,7 @@ function checkout_repo() {
 
 	echo "checkout $BRANCH branch of bare repo $REPO to $TARGET"
 	mkdir -p "$TARGET/.git"
-	cp -ruT "$REPO" "$TARGET/.git"
+	cp -ruT -L "$REPO" "$TARGET/.git"
 
 	push_dir "$TARGET"
 	git init .

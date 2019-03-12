@@ -57,7 +57,7 @@ function call_copy_files() {
 	TARGET_ABS=$(machine_path "$TARGET")
 	echo -n "${TEXT_MUTED}" >&2
 	mkdir -p "$(dirname "$TARGET_ABS")"
-	COUNT=$(cp -vr -- "$FROM_ABS" "$TARGET_ABS" | wc -l)
+	COUNT=$(cp -vr -L -- "$FROM_ABS" "$TARGET_ABS" | wc -l)
 	echo -n "${TEXT_RESET}" >&2
 	echo "  ${COUNT} files copied."
 }
@@ -69,7 +69,7 @@ if ! is_null_or_empty "$INIT_CONFIG_PATH" ; then
 	CONFIG_STORE="$(where_config)"
 	mkdir -p "$CONFIG_STORE"
 	# -n / --no-clobber: no overwrite
-	cp --no-clobber -rf "$(where_host "${INIT_CONFIG_PATH}")/." "$CONFIG_STORE"
+	cp --no-clobber -rf -L "$(where_host "${INIT_CONFIG_PATH}")/." "$CONFIG_STORE"
 fi
 
 ### create symlink from /etc or /var/log or ... to /mnt/xxx
