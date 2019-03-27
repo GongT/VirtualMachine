@@ -31,7 +31,8 @@
 			"nextcloud"
 		],
 		cache: [
-			"php"
+			"php",
+			"nginx"
 		],
 		config: [
 			"nginx",
@@ -44,7 +45,9 @@
 			"php-fpm.conf",
 			"sysconfig/memcached",
 			"poweradmin",
-			"redis.conf"
+			"redis.conf",
+			"privoxy/config",
+			"privoxy/user.action"
 		],
 		socket: [
 			"mysqld",
@@ -190,12 +193,15 @@
 			enabled: true
 		},
 		"php-fpm.service": {
+			enabled: true,
+			overwrite: "service/php-fpm-override.conf"
+		},
+		"privoxy.service": {
 			enabled: true
 		}
 	},
 	environment: {
 		"PASSWORD": "*ask"
 	},
-	postscript: "scripts/post-install.sh",
-	prestart: "scripts/pre-start.sh"
+	postscript: "scripts/post-install.sh"
 }

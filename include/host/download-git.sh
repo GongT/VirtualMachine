@@ -11,8 +11,8 @@ function clone_repo() {
 		pop_dir
 		echo "    git fetch complete."
 	else
-		echo "target Not exists. run clone --bare $URL $TARGET."
-		git clone --verbose --progress --bare "$URL" "$TARGET"
+		echo "target Not exists. run clone --mirror $URL $TARGET."
+		git clone --verbose --progress --mirror "$URL" "$TARGET"
 		echo "    git clone complete."
 	fi
 }
@@ -22,7 +22,7 @@ function checkout_repo() {
 
 	echo "checkout $BRANCH branch of bare repo $REPO to $TARGET"
 	mkdir -p "$TARGET/.git"
-	cp -ruT -L "$REPO" "$TARGET/.git"
+	cp -ruT -P "$REPO" "$TARGET/.git"
 
 	push_dir "$TARGET"
 	git init .

@@ -4,6 +4,13 @@
 	network: {
 		type: "bridge"
 	},
+	mount: [
+		{
+			type: "source",
+			host: ".",
+			destination: "/data/DevelopmentRoot"
+		}
+	],
 	bind: {
 		cache: [
 			"Download"
@@ -11,8 +18,10 @@
 	},
 	install: {
 		packagesFile: "common-tools.lst",
-		inject: [
-			"dnf"
-		]
-	}
+		inject: [ ]
+	},
+	environment: {
+		PROXY: "*pass"
+	},
+	postscript: "post-install.sh"
 }

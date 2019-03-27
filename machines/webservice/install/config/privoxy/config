@@ -1,0 +1,14 @@
+logdir  /tmp
+confdir /etc/privoxy
+toggle  1
+enable-remote-toggle    0
+enable-edit-actions     0
+forwarded-connect-retries       3
+keep-alive-timeout      300
+admin-address   admin@gongt.me
+permit-access   127.0.0.1
+connection-sharing      1
+listen-address  127.0.0.1:1080
+forward-socks5t / 10.0.0.1:3270 .
+accept-intercepted-requests     1
+

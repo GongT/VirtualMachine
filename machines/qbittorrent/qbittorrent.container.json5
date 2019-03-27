@@ -1,0 +1,95 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "shabao-share",
+	bind: {
+		config: [ "qBittorrent.conf", "rss" ],
+		initConfig: "config",
+		configWritable: true
+	},
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/opt/qBittorrent/data"
+		},
+		{
+			type: "volume",
+			host: ".",
+			destination: "/data/Volumes"
+		}
+	],
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packagesFile: "install/runtime.lst"
+	},
+	compile: {
+		requirements: {
+			packagesFile: "install/compileDependency.lst",
+		},
+		projects: [
+			{
+				title: "broadcaster",
+				download: [
+					{
+						type: "github",
+						url: "gongt/remote-shell",
+						saveTo: "/data/DevelopmentRoot/GoLang/src/github.com/gongt/remote-shell"
+					}
+				],
+				artifact: "/opt/remote-shell",
+				saveAt: "/usr/local/bin",
+				script: "install/build-broadcaster.sh"
+			},
+			{
+				title: "libtorrent",
+				download: [
+					{
+						type: "normal",
+						url: "https://github.com/arvidn/libtorrent/releases/download/libtorrent_1_1_12/libtorrent-rasterbar-1.1.12.tar.gz",
+						saveTo: "/opt/qbittorrent/libtorrent",
+						extract: true,
+						stripPath: 1
+					}
+				],
+				artifact: "/opt/qbittorrent/libtorrent-dist",
+				saveAt: "/usr",
+				script: "install/build-libtorrent.sh"
+			},
+			{
+				title: "qbittorrent",
+				download: [
+					{
+						type: "github-release",
+						url: "qbittorrent/qBittorrent",
+						saveTo: "/opt/qbittorrent/source"
+					}
+				],
+				artifact: "/opt/qbittorrent/target",
+				saveAt: "/usr",
+				script: "install/build-qbittorrent.sh"
+			}
+		]
+	},
+	service: {
+		"i3.service": {
+			enabled: true,
+			template: "service/i3.service"
+		},
+		"qbittorrent.service": {
+			enabled: true,
+			template: "service/qbittorrent.service"
+		},
+		"xvnc0.service": {
+			enabled: true,
+			template: "service/xvnc0.service"
+		}
+	},
+	environment: {
+		HTTPS_PROXY: "*pass",
+		HTTP_PROXY: "*pass"
+	},
+	download: [ ],
+	postscript: "post-install.sh"
+}

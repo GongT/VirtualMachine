@@ -1,41 +1,21 @@
 #!/usr/bin/env bash
 
-function run_dnf_server() {
+function run_dnf() {
 	local __TEMP_DNF_RUN=() CACHE_DIR
 	machine_path | path_exists || die "Machine did not exists."
 
 	push_dir "$(machine_path)"
-	mdnf_cache_dir
 	create_mdnf_run_args "$@"
 	screen_run "DNF $1 (...$# args)" "${__TEMP_DNF_RUN[@]}" -y
 	pop_dir
 }
 
-function run_dnf_client() {
-	local __TEMP_DNF_RUN=() CACHE_DIR
-	machine_path | path_exists || die "Machine did not exists."
-
-	push_dir "$(machine_path)"
-	mdnf_cache_dir
-	create_mdnf_run_args "$@"
-	screen_run "DNF $1 (...$# args)" /usr/bin/ssh server "${__TEMP_DNF_RUN[@]}" -y
-	pop_dir
-}
-
-function mdnf_cache_dir() {
-	CACHE_DIR=$(realpath --no-symlinks -m --relative-to "${1-$(pwd)}" /var/cache/dnf)
-}
-
 function create_mdnf_run_args() {
 	require_within
 
-	if [[ -z "$CACHE_DIR" ]]; then
-		die "CACHE_DIR is required for mdnf"
-	fi
-
 	__TEMP_DNF_RUN=(
 		/usr/bin/dnf \
-			"--setopt=cachedir=${CACHE_DIR}" \
+			"--setopt=cachedir=../../../../../../../../../../../../../../../../../var/cache/dnf" \
 			"--setopt=config_file_path=/etc/dnf/dnf.conf" \
 			"--setopt=reposdir=/etc/yum.repos.d" \
 			"--releasever=$FEDORA_RELEASE" \
@@ -43,14 +23,6 @@ function create_mdnf_run_args() {
 			"$@"
 		)
 	unset CACHE_DIR
-}
-
-function run_dnf() {
-	if is_inside_namespace; then
-		run_dnf_client "$@"
-	else
-		run_dnf_server "$@"
-	fi
 }
 
 function install_package() {

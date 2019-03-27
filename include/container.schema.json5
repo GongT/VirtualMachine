@@ -133,7 +133,7 @@
 					type: "array",
 					items: {
 						type: "string",
-						enum: [ "dnf", "ssh-keys" ]
+						enum: [ "ssh-keys" ]
 					}
 				},
 				packages: { $ref: "#/definitions/stringArray" },

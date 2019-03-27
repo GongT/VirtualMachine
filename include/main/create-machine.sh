@@ -96,9 +96,10 @@ function run_them() {
 screen_run "Create links" run_them
 
 ### create profile ###
-PROFILE="$(machine_path /etc/profile.d/environment.sh)"
+PROFILE="$(machine_path /etc/profile.d/00-environment.sh)"
 ENVFILE="$(machine_path /etc/environment)"
 OLD_ENV=$([[ -e "$ENVFILE" ]] && cat "$ENVFILE")
+rm -f "$(machine_path /etc/profile.d/environment.sh)"
 echo "" > "$PROFILE"
 echo "" > "$ENVFILE"
 function generate_environments() {
@@ -125,6 +126,9 @@ echo "" > "$PROFILE"
 echo "" > "$ENVFILE"
 foreach_object ".environment" generate_environments
 echo "  - Created environment file."
+
+ensure_group 100 users
+ensure_user 100 media_rw 100
 
 create_machine_service
 

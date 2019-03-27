@@ -81,11 +81,12 @@ function run_compile() {
 	mkdir -p "$(dirname "$TARGET_SCRIPT")"
 	cp -f -L "$SCRIPT" "$TARGET_SCRIPT"
 
-	local RET_FILE="/var/$(date +%F.%H.%M.%S).${RANDOM}"
+	local RET_FILE="/var/ret-$(date +%F.%H.%M.%S).${RANDOM}"
 	machinectl shell \
 		-E "http_proxy=$HTTP_PROXY" \
 		-E "https_proxy=$HTTPS_PROXY" \
 		-E "RET_FILE=$RET_FILE" \
+		-E "ARTIFACT=$INNER_ARTIFACT" \
 		"$CURRENT_MACHINE" \
 		/bin/bash --login "$ENTRY_FILE_INNER" "$(basename "$TARGET_SCRIPT")"
 	local REMOTE_RET_FILE=$(machine_path "$RET_FILE")
@@ -104,6 +105,8 @@ for JSON in "${COMPILE_LIST[@]}" ; do
 	SAVE_AT=$(echo "$JSON" | query_json_value ".saveAt")
 	SCRIPT=$(echo "$JSON" | query_json_value ".script")
 
+	INNER_ARTIFACT="$ARTIFACT"
+
 	if ! echo "$TITLE" | grep -qiE '^[a-z0-9_-]+$' ; then
 		die "the value '$TITLE' is not a valid project name"
 	fi
@@ -119,10 +122,12 @@ for JSON in "${COMPILE_LIST[@]}" ; do
 	mkdir -p "$ARTIFACT"
 
 	screen_run "Compiling project $TITLE" run_compile "$TITLE" "$SCRIPT"
+	unset INNER_ARTIFACT
 
 	mkdir -p "$(dirname "$SAVE_AT")"
-	CP_LOG=$(cp -Tvrf -L "$ARTIFACT" "$SAVE_AT")
-	echo "  - Copy $(echo "$CP_LOG" | wc -l) files to target machine."
+	echo "  -> copy artifact from $ARTIFACT to $SAVE_AT"
+	CP_LOG=$(cp -Tvrf -P "$ARTIFACT" "$SAVE_AT")
+	echo "        $(echo "$CP_LOG" | wc -l) files copied."
 done
 
 end_within

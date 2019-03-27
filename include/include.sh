@@ -23,6 +23,7 @@ if [[ "$(systemd-detect-virt)" != "systemd-nspawn" ]]; then
 	source 'host/json-parse.sh'
 	source 'host/mdnf.sh'
 	source 'host/sshd-control.sh'
+	source 'host/system.sh'
 	source 'host/virtual-machine-control.sh'
 fi
 popd >/dev/null
