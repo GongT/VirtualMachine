@@ -75,6 +75,7 @@ echo "[global]
 	netbios name = $(< /etc/hostname)
 	interfaces = ${INTERFACE_LIST-lo}
 	security = user
+	min protocol = SMB2
 	map archive = no
 	map hidden = no
 	map read only = no

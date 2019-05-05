@@ -8,7 +8,7 @@ export PKG_CONFIG_PATH="/opt/qbittorrent/libtorrent-dist/lib/pkgconfig:$PKG_CONF
 export CPPFLAGS="$CPPFLAGS -I/usr/include/qt5"
 
 ./configure --prefix="$ARTIFACT" -C \
-	--with-boost \
+	--with-boost
 
 make -j
 make install

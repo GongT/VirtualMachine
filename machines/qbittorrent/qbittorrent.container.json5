@@ -1,6 +1,6 @@
 {
 	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
-	hostname: "shabao-share",
+	hostname: "qbittorrent",
 	bind: {
 		config: [ "qBittorrent.conf", "rss" ],
 		initConfig: "config",
@@ -22,7 +22,10 @@
 		type: "bridge"
 	},
 	install: {
-		packagesFile: "install/runtime.lst"
+		packagesFile: "install/runtime.lst",
+		copyFiles: {
+			"scripts": "/opt"
+		}
 	},
 	compile: {
 		requirements: {

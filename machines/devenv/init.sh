@@ -48,6 +48,5 @@ ln -s ../config
 ./restore.sh
 
 #### linux-toolbox
-ln -s /usr/local/bin/dnf /usr/bin/dnf
 clone_if GongT/linux-toolbox /data/DevelopmentRoot/github.com/GongT/linux-toolbox
 ./install_environment.sh

@@ -37,10 +37,9 @@
 			"openssh-server",
 			"screen",
 			"iputils",
-			"iproute",
-			"dnf"
+			"iproute"
 		],
-		inject: [ "ssh-keys" ]
+		inject: [ "ssh-keys", "dnf" ]
 	},
 	service: {
 		"sshd.socket": {

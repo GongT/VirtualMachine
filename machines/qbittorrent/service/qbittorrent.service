@@ -7,7 +7,8 @@ After=xvnc0.service i3.service
 [Service]
 Type=simple
 Environment=DISPLAY=:0
-ExecStart=/usr/bin/qbittorrent --webui-port=18080 --profile=/opt
+ExecStartPre=/bin/bash /opt/scripts/ddns.sh
+ExecStart=/usr/bin/qbittorrent --profile=/opt
 Restart=on-abort
 User=media_rw
 Group=users
@@ -15,6 +16,8 @@ LimitAS=infinity
 LimitRSS=infinity
 LimitCORE=infinity
 LimitNOFILE=65536
+KillSignal=SIGINT
+TimeoutStopSec=10min
 
 [Install]
 WantedBy=multi-user.target

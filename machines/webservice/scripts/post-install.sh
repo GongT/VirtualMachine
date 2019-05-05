@@ -55,7 +55,6 @@ function add_user_if() {
 	fi
 }
 add_user_if nginx
-add_user_if nextcloud
 add_user_if wordpress
 add_user_if phpmyadmin
 add_user_if poweradmin
@@ -91,11 +90,11 @@ php_user_chown nginx /opt/nginx
 php_user_chown nginx /run/socket/php-fpm
 php_user_chown nginx /mnt/log/nginx
 php_user_chown nginx /mnt/log/php-fpm
-php_user_chown nextcloud /mnt/log/nextcloud
+php_user_chown media_rw /mnt/log/nextcloud
 
 ### chown for web contents
-php_user_chown nextcloud /opt/nextcloud
-php_user_chown nextcloud /drives/AppData/NextCloud
+php_user_chown media_rw /opt/nextcloud
+php_user_chown media_rw /drives/AppData/NextCloud
 php_user_chown phpmyadmin /opt/phpMyAdmin
 php_user_chown poweradmin /opt/poweradmin
 php_user_chown wordpress /opt/wordpress

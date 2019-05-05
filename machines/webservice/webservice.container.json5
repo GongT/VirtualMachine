@@ -9,6 +9,11 @@
 	},
 	mount: [
 		{
+			type: "data",
+			host: ".",
+			destination: "/data/contents"
+		},
+		{
 			type: "source",
 			host: ".",
 			destination: "/data/DevelopmentRoot"

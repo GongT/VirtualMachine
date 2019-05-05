@@ -10,3 +10,4 @@ chown media_rw . -R
 ln -s /mnt/config
 chown media_rw /mnt/config -R
 
+localectl set-locale zh_CN.UTF-8

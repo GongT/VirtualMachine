@@ -1,4 +1,5 @@
 i3
+xdg-utils
 tigervnc-server
 boost-system
 boost-chrono
@@ -10,3 +11,4 @@ wqy-bitmap-fonts
 wqy-microhei-fonts
 wqy-unibit-fonts
 wqy-zenhei-fonts
+bind-utils

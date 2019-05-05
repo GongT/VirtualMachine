@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export FEDORA_RELEASE=29
+export FEDORA_RELEASE=/
 
 export TEXT_RESET="\e[0m"
 export TEXT_MUTED="\e[2m"

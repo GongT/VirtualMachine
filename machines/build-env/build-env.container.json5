@@ -18,7 +18,7 @@
 	},
 	install: {
 		packagesFile: "common-tools.lst",
-		inject: [ ]
+		inject: [ "dnf" ]
 	},
 	environment: {
 		PROXY: "*pass"
