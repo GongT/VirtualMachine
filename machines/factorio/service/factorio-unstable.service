@@ -1,0 +1,18 @@
+[Unit]
+Description=Factorio Server (Experimental)
+Wants=network-online.target
+After=network.target network-online.target
+
+[Service]
+User=factorio
+Group=factorio
+Type=simple
+TimeoutStartSec=20
+ExecStart=/opt/factorio-unstable/bin/x64/factorio --server-settings /etc/factorio/setttings-unstable.json --console-log /var/log/factorio/unstable.log --start-server /data/map-unstable.zip
+TimeoutStopSec=20
+RestartSec=30
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

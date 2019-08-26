@@ -1,0 +1,16 @@
+[Unit]
+Description=nextcloud cron
+JoinsNamespaceOf=php-fpm.service
+
+[Service]
+Type=oneshot
+User=root
+Environment=HTTP_PROXY=http://10.0.0.1:3271
+Environment=HTTPS_PROXY=http://10.0.0.1:3271
+PrivateTmp=yes
+ExecStart=/usr/bin/php -d memory_limit=1G /opt/nextcloud/cron.php
+Restart=no
+
+[Install]
+
+

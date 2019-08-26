@@ -1,0 +1,28 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "deny-access-page",
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/var/lib/nginx"
+		}
+	],
+	bind: {
+		config: [
+			"nginx"
+		],
+		initConfig: "config"
+	},
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packages: ["nginx"]
+	},
+	service: {
+		"nginx.service": {
+			enabled: true,
+		}
+	}
+}

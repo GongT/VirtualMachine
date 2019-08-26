@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+function ensure_node_module() {
+	local MPATH="/tmp/vm-install-script/node_modules/$1/package.json"
+	if [[ ! -e "$MPATH" ]]; then
+		echo "Fetch $1 from npm..."
+		mkdir -p /tmp/vm-install-script
+		pushd /tmp/vm-install-script &>/dev/null
+		npm install --save "$1"
+		popd &>/dev/null
+	fi
+}
+
+function node_module_bin() {
+	echo "/tmp/vm-install-script/node_modules/.bin/$1"
+}
+
 function create_machine_json() {
 	local MACHINE_DEFINE="$1" TARGET
 
@@ -7,10 +22,14 @@ function create_machine_json() {
 	mkdir -p "$(dirname "${TARGET}")"
 
 	echo "Parsing container json..."
-	npx --quiet json5 -o "${TARGET}" -s t "${MACHINE_DEFINE}"
-	npx --quiet json5 -o "/tmp/validate.schema.json" -s t "$SCRIPT_INCLUDE_ROOT/container.schema.json5"
+	ensure_node_module json5
+	local JSON5="$(node_module_bin json5)"
+	"$JSON5" -o "${TARGET}" -s t "${MACHINE_DEFINE}"
+	"$JSON5" -o "/tmp/validate.schema.json" -s t "$SCRIPT_INCLUDE_ROOT/container.schema.json5"
 	echo "    save to: ${TARGET}."
-	npx --quiet ajv-cli -s "/tmp/validate.schema.json" -d "${TARGET}" >/dev/null
+	ensure_node_module ajv-cli
+	local JSON5="$(node_module_bin ajv)"
+	"$JSON5" -s "/tmp/validate.schema.json" -d "${TARGET}" >/dev/null
 	echo "    schema check complete."
 }
 

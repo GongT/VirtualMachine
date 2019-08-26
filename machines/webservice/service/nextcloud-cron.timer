@@ -1,0 +1,11 @@
+[Unit]
+Description=nextcloud cron.php
+Wants=php-fpm.service
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=1h
+
+[Install]
+WantedBy=multi-user.target
+

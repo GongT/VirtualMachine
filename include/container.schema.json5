@@ -29,7 +29,8 @@
 					properties: {
 						type: { type: "string", enum: [ "normal" ] },
 						url: { type: "string" }, saveTo: { type: "string" },
-						extract: { type: "boolean" }, stripPath: { type: "number" }
+						extract: { type: "boolean" }, stripPath: { type: "number" },
+						tempFile: { type: "string" }
 					}
 				},
 				{

@@ -1,0 +1,56 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "factorio",
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/data",
+		},
+	],
+	bind: {
+		log: [ "factorio" ],
+		config: [ "factorio" ],
+		initConfig: "default-config",
+	},
+	network: {
+		type: "bridge",
+	},
+	install: {
+		packages: [
+		],
+		copyFiles: {
+		}
+	},
+	service: {
+		"factorio": {
+			template: "service/factorio.service",
+			enabled: false,
+		},
+		"factorio-unstable": {
+			template: "service/factorio-unstable.service",
+			enabled: true,
+		}
+	},
+	environment: {
+	},
+	download: [
+		{
+			type: "normal",
+			url: "https://www.factorio.com/get-download/stable/headless/linux64",
+			tempFile: "factorio-latest.tar.xz",
+			saveTo: "/opt/factorio-stable",
+			extract: true,
+			stripPath: 1,
+		},
+		{
+			type: "normal",
+			url: "https://www.factorio.com/get-download/latest/headless/linux64",
+			tempFile: "factorio-unstable.tar.xz",
+			saveTo: "/opt/factorio-unstable",
+			extract: true,
+			stripPath: 1,
+		}
+	],
+	postscript: "scripts/create-user.sh",
+}

@@ -17,6 +17,8 @@ function __parse_download_file_info() {
 	SAVE_TO=$(machine_path "$SAVE_TO")
 
 	BRANCH=$(echo "$VAL" | query_json_value '.branch // "master"')
+
+	CACHE_FILE=$(echo "$VAL" | query_json_value '.tempFile // ""')
 }
 
 function download_inner() {
@@ -30,12 +32,14 @@ function download_inner() {
 	echo "strip_path=$STRIP_PATH"
 	echo "extract=$EXTRACT"
 	echo "branch=$BRANCH"
+	echo "CACHE_FILE=$CACHE_FILE"
 	echo ""
 	echo ""
 
 	case "$TYPE" in
 	normal)
-		CACHE_FILE=$(where_cache "Download/$(basename "${URL}")")
+		CACHE_FILE=${CACHE_FILE:-"$(basename "${URL}")"}
+		CACHE_FILE=$(where_cache "Download/$CACHE_FILE")
 		simple_download_file "$URL" "$CACHE_FILE"
 		if [[ "$EXTRACT" = "yes" ]] ; then
 			extract_downloaded "$CACHE_FILE" "$SAVE_TO" "$STRIP_PATH"
@@ -44,7 +48,8 @@ function download_inner() {
 		fi
 	;;
 	github-release)
-		CACHE_FILE=$(where_cache "Download/${URL////-}.tar.gz")
+		CACHE_FILE=${CACHE_FILE:-"${URL////-}.tar.gz"}
+		CACHE_FILE=$(where_cache "Download/$CACHE_FILE")
 		download_github_release "$URL" "$CACHE_FILE"
 		extract_downloaded "$CACHE_FILE" "$SAVE_TO" "$STRIP_PATH"
 	;;
@@ -52,7 +57,8 @@ function download_inner() {
 		URL="https://github.com/${URL}.git"
 	;&
 	git)
-		CACHE_FILE=$(where_cache "Download/$(get_repo_name_from_url "$URL")")
+		CACHE_FILE=${CACHE_FILE:-"$(get_repo_name_from_url "$URL")"}
+		CACHE_FILE=$(where_cache "Download/$CACHE_FILE")
 		clone_repo "$URL" "$CACHE_FILE"
 		checkout_repo "$BRANCH" "$CACHE_FILE" "$SAVE_TO"
 	;;
