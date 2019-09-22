@@ -1,6 +1,6 @@
 {
 	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
-	hostname: "DevelopmentEnvironment",
+	hostname: "developmentenvironment",
 	mount: [
 		{
 			type: "root",

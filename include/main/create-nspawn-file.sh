@@ -120,10 +120,22 @@ echo "      * mount file system"
 append "[Files]"
 foreach_array ".mount" generate_mounts
 
-if [[ "$(query_json ".bind.log | length")" -ne 0 ]]; then
-	mkdir -p "$(where_log)"
-	append "Bind=$(where_log):/mnt/log"
-fi
+
+function mount_logs() {
+	local P="$(where_log "$1")"
+	mkdir -p "$P"
+	local PHY_PATH="$(machine_path "/var/log/${1}")"
+	if [[ -L "$PHY_PATH" ]] ; then
+		unlink "$PHY_PATH"
+	fi
+	if [[ -f "$PHY_PATH" ]] ; then
+		rm -f "$PHY_PATH"
+	fi
+	mkdir -p "$PHY_PATH"
+	append "Bind=$P:/var/log/${1}"
+}
+foreach_array ".bind.log" mount_logs
+
 if [[ "$(query_json ".bind.config | length")" -ne 0 ]]; then
 	mkdir -p "$(where_config)"
 	if [[ "$(query_json ".bind.configWritable")" = "true" ]] ; then

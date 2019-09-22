@@ -17,6 +17,7 @@ if [[ -e "$TESTING_PATH" ]] ; then
 	echo "  - Already exists"
 else
 	echo "  - Base environment missing, installing..."
+	run_dnf --verbose makecache
 	run_dnf install systemd bash fedora-release
 	chroot_systemctl_enable systemd-networkd systemd-resolved
 fi
@@ -90,7 +91,6 @@ function create_bind_link() {
 
 function run_them() {
 	foreach_array ".bind.config" create_bind_link "/mnt/config" "/etc"
-	foreach_array ".bind.log" create_bind_link "/mnt/log" "/var/log"
 	foreach_array ".bind.cache" create_bind_link "/mnt/cache" "/var/cache"
 }
 screen_run "Create links" run_them

@@ -94,5 +94,5 @@
 		HTTP_PROXY: "*pass"
 	},
 	download: [ ],
-	postscript: "post-install.sh"
+	postscript: "scripts/post-install.sh"
 }

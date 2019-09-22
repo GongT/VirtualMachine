@@ -1,0 +1,14 @@
+[Service]
+ExecStartPre=
+ExecStartPre=!/usr/bin/mkdir -p /var/run/socket/mongodb
+ExecStartPre=!/usr/bin/chown -R mongod:mongod /var/run/socket/mongodb
+ExecStartPre=!/usr/bin/chmod 0755 /var/run/socket/mongodb
+
+ExecStartPre=!/usr/bin/chown -R mongod:mongod /var/log/mongodb
+ExecStartPre=!/usr/bin/chmod 0755 /var/run/socket/mongodb
+
+ExecStartPre=!/usr/bin/mkdir -p /var/run/mongodb/
+ExecStartPre=!/usr/bin/chown -R mongod:mongod /var/run/mongodb/
+ExecStartPre=!/usr/bin/chmod 0755 /var/run/mongodb/
+
+ExecStartPre=!/usr/bin/chown -R mongod:mongod /var/lib/mongo

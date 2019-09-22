@@ -1,0 +1,41 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "mongodb",
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/var/lib/mongo"
+		}
+	],
+	bind: {
+		config: [ "mongod.conf" ],
+		log: [ "mongodb" ],
+		socket: [ "mongodb" ],
+		initConfig: "etc"
+	},
+	network: {
+		type: "bridge"
+	},
+	download: [
+		{
+			type: "normal",
+			url: "https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.2/x86_64/RPMS/mongodb-org-server-4.2.0-1.el7.x86_64.rpm",
+			saveTo: "/opt/mongodb-org-server.rpm",
+			extract: false
+		}
+	],
+	install: {
+		packages: [ ],
+		copyFiles: { },
+		downloaded: [ "/opt/mongodb-org-server.rpm" ]
+	},
+	environment: {
+	},
+	service: {
+		"mongod.service": {
+			enabled: true,
+			overwrite: "service/override.service"
+		}
+	}
+}
