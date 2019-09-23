@@ -37,8 +37,8 @@ set -e
 
 cd /opt/source/nginx/core
 
-export LUAJIT_LIB=/usr/lib64
-export LUAJIT_INC=/usr/include/luajit-2.1
+# export LUAJIT_LIB=/usr/lib64
+# export LUAJIT_INC=/usr/include/luajit-2.1
 
 ./auto/configure \\" > configure.sh
 

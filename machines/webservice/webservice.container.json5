@@ -56,7 +56,8 @@
 		],
 		socket: [
 			"mysqld",
-			"php-fpm"
+			"php-fpm",
+			"mongodb"
 		],
 		initConfig: "install/config"
 	},
@@ -145,6 +146,7 @@
 						url: "openresty/headers-more-nginx-module",
 						saveTo: "/opt/source/nginx/modules/headers-more-nginx-module"
 					},
+/*
 					{
 						type: "github",
 						url: "openresty/lua-nginx-module",
@@ -155,6 +157,7 @@
 						url: "openresty/stream-lua-nginx-module",
 						saveTo: "/opt/source/nginx/modules/stream-lua-nginx-module"
 					},
+*/
 					{
 						type: "github",
 						url: "simplresty/ngx_devel_kit",

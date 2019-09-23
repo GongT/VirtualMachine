@@ -1,0 +1,20 @@
+[Unit]
+Description=DokuWiki Container
+Requires=docker.service mongodb.machine.service
+After=docker.service mongodb.machine.service
+RequiresMountsFor=/data/Cache
+RequiresMountsFor=/data/AppData
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+KillMode=control-group
+SendSIGKILL=yes
+Type=simple
+Restart=always
+ExecStart=/bin/bash "./start.sh" 
+ExecStop=/bin/bash "./stop.sh"
+
+# WorkingDirectory= auto insert below:
+

@@ -9,10 +9,21 @@
 		},
 		{
 			type: "root",
-			host: "/data",
+			host: "/dev/shm",
 			destination: "/dev/shm"
+		},
+		{
+			type: "root",
+			host: "/root/.ssh",
+			destination: "/root/.ssh"
 		}
 	],
+	bind: {
+		socket: [
+			"mysqld",
+			"mongodb"
+		]
+	},
 	network: {
 		type: "bridge"
 	},
