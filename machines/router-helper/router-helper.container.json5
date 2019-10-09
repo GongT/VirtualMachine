@@ -1,0 +1,36 @@
+{
+	$schema: "http://schemas.service.gongt.me/virtual-machine-installer.json",
+	hostname: "router-helper",
+	mount: [
+		{
+			type: "data",
+			host: ".",
+			destination: "/data"
+		},
+	],
+	bind: {
+		config: [ "redis.conf", "rsyslog.conf" ],
+		initConfig: "config"
+	},
+	network: {
+		type: "bridge"
+	},
+	install: {
+		packages: [
+			"redis",
+			"rsyslog"
+		],
+	},
+	service: {
+		"my-redis@.service": {
+			enabled: [ '26850', '26851', '26852' ],
+			template: "service/my-redis.service"
+		},
+		"rsyslog.service": {
+			enabled: true
+		},
+	},
+	environment: {
+	},
+	download: [ ],
+}

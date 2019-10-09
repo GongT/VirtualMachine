@@ -1,0 +1,29 @@
+[Unit]
+Description=Redis persistent key-value database listen at port %I
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=PORT=%I
+Environment=PID=/run/redis/redis-%I.pid
+Environment=DATA_DIR=/data/redis/%I
+ExecStartPre=!/usr/bin/mkdir -p $DATA_DIR
+ExecStartPre=!/usr/bin/chown redis:redis -R $DATA_DIR
+ExecStart=/usr/bin/redis-server \
+								/etc/redis.conf \
+								--pidfile $PID \
+								--port $PORT \
+								--dir $DATA_DIR \
+								--supervised systemd
+ExecStop=/usr/bin/redis-cli -p $PORT shutdown
+Type=notify
+User=redis
+Group=redis
+RuntimeDirectory=redis/%I
+RuntimeDirectoryMode=0755
+LimitNOFILE=1024
+StateDirectory=redis/%I
+
+[Install]
+WantedBy=multi-user.target
