@@ -50,7 +50,8 @@
 			overwrite: "service/flush-config.service"
 		},
 		"nmb": {
-			enabled: false
+			enabled: false,
+			overwrite: "service/flush-config.service"
 		},
 		"tgtd": {
 			enabled: true

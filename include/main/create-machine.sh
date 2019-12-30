@@ -18,8 +18,8 @@ if [[ -e "$TESTING_PATH" ]] ; then
 else
 	echo "  - Base environment missing, installing..."
 	run_dnf --verbose makecache
-	run_dnf install systemd bash fedora-release
-	chroot_systemctl_enable systemd-networkd systemd-resolved
+	run_dnf install systemd bash fedora-release avahi-dnsconfd
+	chroot_systemctl_enable systemd-networkd systemd-resolved avahi-daemon
 fi
 
 ### system configure ###
